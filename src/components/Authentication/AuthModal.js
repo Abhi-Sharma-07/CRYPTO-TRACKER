@@ -5,7 +5,7 @@ import Fade from "@material-ui/core/Fade";
 import { Button, Tab, Tabs, AppBar, Box } from "@material-ui/core";
 import Signup from "./Signup";
 import Login from "./Login";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CryptoState } from "../../CryptoContext";
 import { auth } from "../../firebase";
 import GoogleButton from "react-google-button";
@@ -75,7 +75,7 @@ export default function AuthModal() {
   const googleProvider = new GoogleAuthProvider();
 
   // Handle redirect result when user lands back after Google sign-in
-  useState(() => {
+  useEffect(() => {
     getRedirectResult(auth)
       .then((res) => {
         if (!res) return; // no redirect result, normal page load
