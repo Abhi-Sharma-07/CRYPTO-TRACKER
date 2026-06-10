@@ -12,7 +12,8 @@ import GoogleButton from "react-google-button";
 import {
   GoogleAuthProvider,
   getAdditionalUserInfo,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
 } from "firebase/auth";
 import { sendOwnerNotification } from "../../utils/emailjs";
 import { getFirebaseErrorMessage } from "../../utils/firebaseError";
@@ -64,9 +65,11 @@ export default function AuthModal() {
 
   const googleProvider = new GoogleAuthProvider();
 
-  const signInWithGoogle = () => {
-    signInWithPopup(auth, googleProvider)
+  // Handle redirect result when user lands back after Google sign-in
+  useState(() => {
+    getRedirectResult(auth)
       .then((res) => {
+        if (!res) return; // no redirect result, normal page load
         const authMeta = getAdditionalUserInfo(res);
         const eventType = authMeta?.isNewUser ? "signup" : "login";
 
@@ -92,17 +95,20 @@ export default function AuthModal() {
           }. Welcome ${res.user.email}`,
           type: "success",
         });
-
-        handleClose();
       })
       .catch((error) => {
-        setAlert({
-          open: true,
-          message: getFirebaseErrorMessage(error, "Google sign-in failed."),
-          type: "error",
-        });
-        return;
+        if (error.code !== "auth/popup-closed-by-user") {
+          setAlert({
+            open: true,
+            message: getFirebaseErrorMessage(error, "Google sign-in failed."),
+            type: "error",
+          });
+        }
       });
+  }, []);
+
+  const signInWithGoogle = () => {
+    signInWithRedirect(auth, googleProvider);
   };
 
   return (
