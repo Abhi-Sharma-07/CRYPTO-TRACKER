@@ -5,15 +5,13 @@ import Fade from "@material-ui/core/Fade";
 import { Button, Tab, Tabs, AppBar, Box } from "@material-ui/core";
 import Signup from "./Signup";
 import Login from "./Login";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { CryptoState } from "../../CryptoContext";
 import { auth } from "../../firebase";
 import GoogleButton from "react-google-button";
 import {
   GoogleAuthProvider,
-  getAdditionalUserInfo,
   signInWithRedirect,
-  getRedirectResult,
 } from "firebase/auth";
 import { sendOwnerNotification } from "../../utils/emailjs";
 import { getFirebaseErrorMessage } from "../../utils/firebaseError";
@@ -73,48 +71,6 @@ export default function AuthModal() {
   };
 
   const googleProvider = new GoogleAuthProvider();
-
-  // Handle redirect result when user lands back after Google sign-in
-  useEffect(() => {
-    getRedirectResult(auth)
-      .then((res) => {
-        if (!res) return; // no redirect result, normal page load
-        const authMeta = getAdditionalUserInfo(res);
-        const eventType = authMeta?.isNewUser ? "signup" : "login";
-
-        sendOwnerNotification({
-          type: eventType,
-          userEmail: res.user.email,
-        }).catch((error) => {
-          console.error("Google auth notification failed:", error);
-        });
-        logAuthEvent({
-          eventType,
-          provider: "google",
-          userEmail: res.user.email,
-          uid: res.user.uid,
-        }).catch((error) => {
-          console.error("Google auth traffic logging failed:", error);
-        });
-
-        setAlert({
-          open: true,
-          message: `${
-            authMeta?.isNewUser ? "Sign Up Successful" : "Login Successful"
-          }. Welcome ${res.user.email}`,
-          type: "success",
-        });
-      })
-      .catch((error) => {
-        if (error.code !== "auth/popup-closed-by-user") {
-          setAlert({
-            open: true,
-            message: getFirebaseErrorMessage(error, "Google sign-in failed."),
-            type: "error",
-          });
-        }
-      });
-  }, []);
 
   const signInWithGoogle = () => {
     signInWithRedirect(auth, googleProvider);
