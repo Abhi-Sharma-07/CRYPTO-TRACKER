@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, createTheme, ThemeProvider } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
@@ -42,6 +42,15 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: "serif",
   },
 }));
+
+// Light theme for modal so TextFields are always visible (dark text on white)
+const modalLightTheme = createTheme({
+  palette: {
+    type: "light",
+    primary: { main: "#EEBC1D" },
+  },
+  typography: { fontFamily: "serif" },
+});
 
 export default function AuthModal() {
   const classes = useStyles();
@@ -139,34 +148,36 @@ export default function AuthModal() {
         }}
       >
         <Fade in={open}>
-          <div className={classes.paper}>
-            <AppBar
-              position="static"
-              style={{
-                backgroundColor: "transparent",
-                color: "inherit",
-              }}
-            >
-              <Tabs
-                value={value}
-                onChange={handleChange}
-                variant="fullWidth"
-                style={{ borderRadius: 10 }}
+          <ThemeProvider theme={modalLightTheme}>
+            <div className={classes.paper}>
+              <AppBar
+                position="static"
+                style={{
+                  backgroundColor: "transparent",
+                  color: "inherit",
+                }}
               >
-                <Tab label="Login" style={{ fontFamily: "serif" }} />
-                <Tab label="Sign Up" style={{ fontFamily: "serif" }} />
-              </Tabs>
-            </AppBar>
-            {value === 0 && <Login handleClose={handleClose} />}
-            {value === 1 && <Signup handleClose={handleClose} />}
-            <Box className={classes.google}>
-              <span>OR</span>
-              <GoogleButton
-                style={{ width: "100%", outline: "none" }}
-                onClick={signInWithGoogle}
-              />
-            </Box>
-          </div>
+                <Tabs
+                  value={value}
+                  onChange={handleChange}
+                  variant="fullWidth"
+                  style={{ borderRadius: 10 }}
+                >
+                  <Tab label="Login" style={{ fontFamily: "serif" }} />
+                  <Tab label="Sign Up" style={{ fontFamily: "serif" }} />
+                </Tabs>
+              </AppBar>
+              {value === 0 && <Login handleClose={handleClose} />}
+              {value === 1 && <Signup handleClose={handleClose} />}
+              <Box className={classes.google}>
+                <span>OR</span>
+                <GoogleButton
+                  style={{ width: "100%", outline: "none" }}
+                  onClick={signInWithGoogle}
+                />
+              </Box>
+            </div>
+          </ThemeProvider>
         </Fade>
       </Modal>
     </div>
