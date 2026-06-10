@@ -13,9 +13,7 @@ import {
   GoogleAuthProvider,
   signInWithRedirect,
 } from "firebase/auth";
-import { sendOwnerNotification } from "../../utils/emailjs";
-import { getFirebaseErrorMessage } from "../../utils/firebaseError";
-import { logAuthEvent } from "../../utils/authTraffic";
+
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -54,7 +52,7 @@ export default function AuthModal() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
-  const { setAlert } = CryptoState();
+  const { } = CryptoState();
 
   const handleOpen = () => {
     setOpen(true);
