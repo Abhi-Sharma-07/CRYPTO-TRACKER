@@ -1,6 +1,11 @@
+const isLocalHost =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1");
+
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyBh_lUZOKIaQg9sNbnMEQDnnMSqg-T2FmU",
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "crypto-tracker-96ae3.firebaseapp.com",
+  authDomain: isLocalHost ? (process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "crypto-tracker-96ae3.firebaseapp.com") : (typeof window !== "undefined" ? window.location.hostname : "crypto-tracker-96ae3.firebaseapp.com"),
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "crypto-tracker-96ae3",
   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "crypto-tracker-96ae3.firebasestorage.app",
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "561436893716",
