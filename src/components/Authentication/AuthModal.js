@@ -7,7 +7,6 @@ import Signup from "./Signup";
 import Login from "./Login";
 import { useState } from "react";
 import { auth } from "../../firebase";
-import { CryptoState } from "../../CryptoContext";
 import GoogleButton from "react-google-button";
 import {
   GoogleAuthProvider,
@@ -52,7 +51,7 @@ export default function AuthModal() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
-  // CryptoState available if needed: const { ... } = CryptoState();
+
 
   const handleOpen = () => {
     setOpen(true);
