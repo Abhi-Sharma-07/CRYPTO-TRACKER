@@ -11,7 +11,6 @@ import { CryptoState } from "../../CryptoContext";
 import GoogleButton from "react-google-button";
 import {
   GoogleAuthProvider,
-  signInWithPopup,
   signInWithRedirect,
 } from "firebase/auth";
 
@@ -70,28 +69,8 @@ export default function AuthModal() {
 
   const googleProvider = new GoogleAuthProvider();
 
-  const signInWithGoogle = async () => {
-    try {
-      // Try popup first (best UX)
-      const result = await signInWithPopup(auth, googleProvider);
-      setAlert({
-        open: true,
-        message: `Welcome ${result.user.email} 🎉`,
-        type: "success",
-      });
-      handleClose();
-    } catch (error) {
-      if (error.code === "auth/popup-blocked") {
-        // Browser blocked popup → fall back to redirect flow
-        signInWithRedirect(auth, googleProvider);
-      } else if (error.code !== "auth/popup-closed-by-user") {
-        setAlert({
-          open: true,
-          message: error.message || "Google Sign-In failed. Please try again.",
-          type: "error",
-        });
-      }
-    }
+  const signInWithGoogle = () => {
+    signInWithRedirect(auth, googleProvider);
   };
 
   return (
