@@ -12,6 +12,7 @@ import GoogleButton from "react-google-button";
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
 } from "firebase/auth";
 
 
@@ -71,6 +72,7 @@ export default function AuthModal() {
 
   const signInWithGoogle = async () => {
     try {
+      // Try popup first (best UX)
       const result = await signInWithPopup(auth, googleProvider);
       setAlert({
         open: true,
@@ -79,8 +81,10 @@ export default function AuthModal() {
       });
       handleClose();
     } catch (error) {
-      // User closed popup or something went wrong
-      if (error.code !== "auth/popup-closed-by-user") {
+      if (error.code === "auth/popup-blocked") {
+        // Browser blocked popup → fall back to redirect flow
+        signInWithRedirect(auth, googleProvider);
+      } else if (error.code !== "auth/popup-closed-by-user") {
         setAlert({
           open: true,
           message: error.message || "Google Sign-In failed. Please try again.",

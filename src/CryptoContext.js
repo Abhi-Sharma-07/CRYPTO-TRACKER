@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, getRedirectResult } from "firebase/auth";
 import { auth, db } from "./firebase";
 import { onSnapshot, doc } from "firebase/firestore";
 
@@ -36,6 +36,22 @@ const CryptoContext = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
+    // Handle redirect result (fallback when popup is blocked by browser)
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          setAlert({
+            open: true,
+            message: `Welcome ${result.user.email} 🎉`,
+            type: "success",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Google redirect error:", error.code);
+      });
+
+    // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (loggedInUser) => {
       if (loggedInUser) setUser(loggedInUser);
       else setUser(null);
