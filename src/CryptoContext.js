@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { onAuthStateChanged, getRedirectResult } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase";
 import { onSnapshot, doc } from "firebase/firestore";
 
@@ -36,29 +36,10 @@ const CryptoContext = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    // Handle Google redirect sign-in result (runs on every page load after redirect)
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          console.log("Google redirect sign-in success:", result.user.email);
-          setUser(result.user);
-          setAlert({
-            open: true,
-            message: `Login Successful. Welcome ${result.user.email}`,
-            type: "success",
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("Google redirect error:", error.code, error.message);
-      });
-
-    // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (loggedInUser) => {
       if (loggedInUser) setUser(loggedInUser);
       else setUser(null);
     });
-
     return () => unsubscribe();
   }, []);
 

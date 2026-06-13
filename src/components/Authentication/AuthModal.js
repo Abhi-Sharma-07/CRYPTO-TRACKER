@@ -7,10 +7,11 @@ import Signup from "./Signup";
 import Login from "./Login";
 import { useState } from "react";
 import { auth } from "../../firebase";
+import { CryptoState } from "../../CryptoContext";
 import GoogleButton from "react-google-button";
 import {
   GoogleAuthProvider,
-  signInWithRedirect,
+  signInWithPopup,
 } from "firebase/auth";
 
 
@@ -50,8 +51,7 @@ const modalLightTheme = createTheme({
 export default function AuthModal() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-
-
+  const { setAlert } = CryptoState();
 
   const handleOpen = () => {
     setOpen(true);
@@ -69,8 +69,25 @@ export default function AuthModal() {
 
   const googleProvider = new GoogleAuthProvider();
 
-  const signInWithGoogle = () => {
-    signInWithRedirect(auth, googleProvider);
+  const signInWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      setAlert({
+        open: true,
+        message: `Welcome ${result.user.email} 🎉`,
+        type: "success",
+      });
+      handleClose();
+    } catch (error) {
+      // User closed popup or something went wrong
+      if (error.code !== "auth/popup-closed-by-user") {
+        setAlert({
+          open: true,
+          message: error.message || "Google Sign-In failed. Please try again.",
+          type: "error",
+        });
+      }
+    }
   };
 
   return (
