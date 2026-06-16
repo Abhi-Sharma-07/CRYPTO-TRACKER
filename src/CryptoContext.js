@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { onAuthStateChanged, getRedirectResult } from "firebase/auth";
 import { auth, db } from "./firebase";
 import { onSnapshot, doc } from "firebase/firestore";
+import { sendOwnerNotification } from "./utils/emailjs";
+import { logAuthEvent } from "./utils/authTraffic";
 
 const Crypto = createContext();
 
@@ -13,7 +15,7 @@ const CryptoContext = ({ children }) => {
     message: "",
     type: "success",
   });
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(undefined);
   const [coins, setCoins] = useState([]);
   const [loading, setLoading] = useState(false);
   const [watchlist, setWatchlist] = useState([]);
@@ -40,6 +42,21 @@ const CryptoContext = ({ children }) => {
     getRedirectResult(auth)
       .then((result) => {
         if (result?.user) {
+          logAuthEvent({
+            eventType: "login",
+            provider: "google",
+            userEmail: result.user.email,
+            uid: result.user.uid,
+          }).catch((error) => {
+            console.error("Google login traffic logging failed:", error);
+          });
+          sendOwnerNotification({
+            type: "login (google)",
+            userEmail: result.user.email,
+          }).catch((error) => {
+            console.error("Google login notification failed:", error);
+          });
+
           setAlert({
             open: true,
             message: `Welcome ${result.user.email} 🎉`,

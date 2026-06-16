@@ -33,12 +33,16 @@ const Signup = ({ handleClose }) => {
       );
 
       // Save signup record to Firestore
-      await setDoc(doc(db, "signups", result.user.uid), {
-        email: result.user.email,
-        uid: result.user.uid,
-        signupDate: new Date().toISOString(),
-        timestamp: new Date(),
-      });
+      try {
+        await setDoc(doc(db, "signups", result.user.uid), {
+          email: result.user.email,
+          uid: result.user.uid,
+          signupDate: new Date().toISOString(),
+          timestamp: new Date(),
+        });
+      } catch (dbError) {
+        console.error("Database signup save failed (proceeding anyway):", dbError);
+      }
 
       sendOwnerNotification({
         type: "signup",

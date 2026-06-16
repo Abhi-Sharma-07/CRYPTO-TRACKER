@@ -10,6 +10,7 @@ import { auth } from "../../firebase";
 import GoogleButton from "react-google-button";
 import {
   GoogleAuthProvider,
+  signInWithPopup,
   signInWithRedirect,
 } from "firebase/auth";
 
@@ -65,10 +66,15 @@ export default function AuthModal() {
     setValue(newValue);
   };
 
-  const googleProvider = new GoogleAuthProvider();
-
-  const signInWithGoogle = () => {
-    signInWithRedirect(auth, googleProvider);
+  const signInWithGoogle = async () => {
+    const googleProvider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      if (error.code === "auth/popup-blocked") {
+        signInWithRedirect(auth, googleProvider);
+      }
+    }
   };
 
   return (

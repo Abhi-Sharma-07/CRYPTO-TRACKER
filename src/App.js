@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, CircularProgress } from "@material-ui/core";
 import "./App.css";
 import { BrowserRouter, Redirect, Route } from "react-router-dom";
 import Header from "./components/Header";
@@ -8,6 +8,7 @@ import Alert from "./components/Alert";
 import { ThemeProvider, useTheme } from "./ThemeContext";
 import { CryptoState } from "./CryptoContext";
 import { isAdminUser } from "./utils/adminAccess";
+import LandingAuthPage from "./components/Authentication/LandingAuthPage";
 
 const Homepage = lazy(() => import("./Pages/HomePage"));
 const CoinPage = lazy(() => import("./Pages/CoinPage"));
@@ -29,6 +30,26 @@ function AppContent() {
   const { isDarkMode } = useTheme();
   const { user } = CryptoState();
   const isAdmin = isAdminUser(user);
+
+  if (user === undefined) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#14161a",
+        }}
+      >
+        <CircularProgress style={{ color: "gold" }} size={60} />
+      </div>
+    );
+  }
+
+  if (user === null) {
+    return <LandingAuthPage />;
+  }
 
   return (
     <div

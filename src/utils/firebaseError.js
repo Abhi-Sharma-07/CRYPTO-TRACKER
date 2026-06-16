@@ -11,6 +11,22 @@ const FIREBASE_ERROR_MAP = {
     "This domain is not authorized for Firebase Auth. Add localhost in Authentication > Settings > Authorized domains.",
   "permission-denied":
     "Firestore denied this request. Check your Firestore rules for authenticated access.",
+  "auth/email-already-in-use":
+    "This email already has an account. Please switch to the Login tab instead.",
+  "auth/wrong-password":
+    "Incorrect password. Please try again.",
+  "auth/user-not-found":
+    "No account found with this email. Please sign up first.",
+  "auth/invalid-credential":
+    "Incorrect email or password. Please try again.",
+  "auth/weak-password":
+    "Password is too weak. Please use at least 6 characters.",
+  "auth/too-many-requests":
+    "Too many failed attempts. Please wait a moment before trying again.",
+  "auth/network-request-failed":
+    "Network error. Please check your internet connection and try again.",
+  "auth/popup-closed-by-user":
+    "Google sign-in was cancelled. Please try again.",
 };
 
 export const getFirebaseErrorMessage = (error, fallback = "Firebase request failed.") => {
