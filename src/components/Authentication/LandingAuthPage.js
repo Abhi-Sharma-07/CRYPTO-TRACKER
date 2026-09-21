@@ -438,6 +438,9 @@ export default function LandingAuthPage() {
         setAlert({ open: true, message: `Account created! Welcome ${user.email}`, type: "success" });
       }
     } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        setTabValue(0);
+      }
       setAlert({ open: true, message: getFirebaseErrorMessage(error, tabValue === 0 ? "Login failed." : "Signup failed."), type: "error" });
     } finally {
       setLoading(false);
