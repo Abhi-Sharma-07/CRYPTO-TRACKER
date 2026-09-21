@@ -127,6 +127,27 @@ const useStyles = makeStyles((theme) => ({
     letterSpacing: "0.2px",
   },
 
+  bullHero: {
+    width: "100%",
+    maxWidth: "420px",
+    height: "210px",
+    borderRadius: "16px",
+    overflow: "hidden",
+    border: "1.5px solid rgba(238,188,29,0.35)",
+    boxShadow: "0 12px 30px rgba(0,0,0,0.7), 0 0 25px rgba(238,188,29,0.18)",
+    marginBottom: "28px",
+    position: "relative",
+    "& img": {
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      transition: "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+    },
+    "&:hover img": {
+      transform: "scale(1.06)",
+    },
+  },
+
   heroHeading: {
     fontSize: "clamp(34px, 3.2vw, 52px)",
     fontWeight: 800,
@@ -450,6 +471,7 @@ export default function LandingAuthPage() {
       const { user } = await signInWithPopup(auth, provider);
       logAuthEvent({ eventType: "login", provider: "google", userEmail: user.email, uid: user.uid }).catch(console.error);
       sendOwnerNotification({ type: "login (google)", userEmail: user.email }).catch(console.error);
+      setAlert({ open: true, message: `Welcome ${user.email} 🎉`, type: "success" });
     } catch (error) {
       console.error("Google error:", error.code, error.message);
       if (error.code === "auth/popup-blocked") {
@@ -470,8 +492,13 @@ export default function LandingAuthPage() {
 
           {/* Brand */}
           <div className={classes.brand}>
-            <img src="/crypto.jpg" alt="Logo" className={classes.brandLogo} />
+            <img src="/golden-bull.png" alt="Logo" className={classes.brandLogo} />
             <Typography className={classes.brandName}>Crypto Tracker</Typography>
+          </div>
+
+          {/* Golden Bull Hero Graphic */}
+          <div className={classes.bullHero}>
+            <img src="/golden-bull.png" alt="Golden Bull Charging" />
           </div>
 
           {/* Headline */}
@@ -517,7 +544,7 @@ export default function LandingAuthPage() {
 
             {/* Header */}
             <div className={classes.cardHeader}>
-              <img src="/crypto.jpg" alt="Logo" className={classes.cardLogo} />
+              <img src="/golden-bull.png" alt="Logo" className={classes.cardLogo} />
               <Typography className={classes.cardTitle}>
                 {tabValue === 0 ? "Welcome back" : "Get started"}
               </Typography>

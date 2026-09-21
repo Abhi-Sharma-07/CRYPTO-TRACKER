@@ -15,6 +15,12 @@ import {
 } from "firebase/auth";
 
 
+import { CryptoState } from "../../CryptoContext";
+import { sendOwnerNotification } from "../../utils/emailjs";
+import { logAuthEvent } from "../../utils/authTraffic";
+import { getFirebaseErrorMessage } from "../../utils/firebaseError";
+
+
 const useStyles = makeStyles((theme) => ({
   modal: {
     display: "flex",
@@ -51,6 +57,7 @@ const modalLightTheme = createTheme({
 export default function AuthModal() {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const { setAlert } = CryptoState();
 
   const handleOpen = () => {
     setOpen(true);
@@ -69,10 +76,33 @@ export default function AuthModal() {
   const signInWithGoogle = async () => {
     const googleProvider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      logAuthEvent({
+        eventType: "login",
+        provider: "google",
+        userEmail: result.user.email,
+        uid: result.user.uid,
+      }).catch(console.error);
+      sendOwnerNotification({
+        type: "login (google)",
+        userEmail: result.user.email,
+      }).catch(console.error);
+      setAlert({
+        open: true,
+        message: `Sign In Successful. Welcome ${result.user.email}`,
+        type: "success",
+      });
+      handleClose();
     } catch (error) {
+      console.error("Google sign-in error:", error);
       if (error.code === "auth/popup-blocked") {
         signInWithRedirect(auth, googleProvider);
+      } else if (error.code !== "auth/popup-closed-by-user") {
+        setAlert({
+          open: true,
+          message: getFirebaseErrorMessage(error, `Google sign-in failed: ${error.code || error.message}`),
+          type: "error",
+        });
       }
     }
   };
@@ -104,9 +134,11 @@ export default function AuthModal() {
           timeout: 500,
         }}
       >
-        <Fade in={open}>
-          <ThemeProvider theme={modalLightTheme}>
             <div className={classes.paper}>
+              <Box style={{ display: "flex", justifyContent: "center", alignItems: "center", paddingTop: 16, paddingBottom: 8, gap: 10 }}>
+                <img src="/golden-bull.png" alt="Golden Bull" style={{ width: 42, height: 42, borderRadius: "50%", border: "2px solid #EEBC1D", objectFit: "cover" }} />
+                <span style={{ fontWeight: "bold", fontFamily: "serif", fontSize: "1.1rem" }}>Crypto Tracker</span>
+              </Box>
               <AppBar
                 position="static"
                 style={{
