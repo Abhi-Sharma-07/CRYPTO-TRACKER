@@ -134,6 +134,8 @@ export default function AuthModal() {
           timeout: 500,
         }}
       >
+        <Fade in={open}>
+          <ThemeProvider theme={modalLightTheme}>
             <div className={classes.paper}>
               <Box style={{ display: "flex", justifyContent: "center", alignItems: "center", paddingTop: 16, paddingBottom: 8, gap: 10 }}>
                 <img src="/golden-bull.png" alt="Golden Bull" style={{ width: 42, height: 42, borderRadius: "50%", border: "2px solid #EEBC1D", objectFit: "cover" }} />
