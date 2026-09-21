@@ -446,17 +446,18 @@ export default function LandingAuthPage() {
 
   const handleGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
     try {
       const { user } = await signInWithPopup(auth, provider);
       logAuthEvent({ eventType: "login", provider: "google", userEmail: user.email, uid: user.uid }).catch(console.error);
       sendOwnerNotification({ type: "login (google)", userEmail: user.email }).catch(console.error);
       setAlert({ open: true, message: `Welcome ${user.email} 🎉`, type: "success" });
     } catch (error) {
-      console.error("Google error:", error.code, error.message);
-      if (error.code === "auth/popup-blocked") {
+      console.error("Google login error:", error.code, error.message);
+      if (error.code === "auth/popup-blocked" || error.code === "auth/cancelled-popup-request") {
         signInWithRedirect(auth, provider);
       } else if (error.code !== "auth/popup-closed-by-user") {
-        setAlert({ open: true, message: getFirebaseErrorMessage(error, `Google sign-in failed: ${error.code}`), type: "error" });
+        setAlert({ open: true, message: getFirebaseErrorMessage(error, `Google sign-in error: ${error.code || error.message}`), type: "error" });
       }
     }
   };

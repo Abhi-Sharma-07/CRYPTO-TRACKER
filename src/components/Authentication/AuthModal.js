@@ -75,6 +75,7 @@ export default function AuthModal() {
 
   const signInWithGoogle = async () => {
     const googleProvider = new GoogleAuthProvider();
+    googleProvider.setCustomParameters({ prompt: "select_account" });
     try {
       const result = await signInWithPopup(auth, googleProvider);
       logAuthEvent({
@@ -95,7 +96,7 @@ export default function AuthModal() {
       handleClose();
     } catch (error) {
       console.error("Google sign-in error:", error);
-      if (error.code === "auth/popup-blocked") {
+      if (error.code === "auth/popup-blocked" || error.code === "auth/cancelled-popup-request") {
         signInWithRedirect(auth, googleProvider);
       } else if (error.code !== "auth/popup-closed-by-user") {
         setAlert({
