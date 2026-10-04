@@ -8,7 +8,9 @@ import {
   CircularProgress,
   InputAdornment,
   IconButton,
+  Snackbar,
 } from "@material-ui/core";
+import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles, ThemeProvider, createTheme } from "@material-ui/core/styles";
 import { Visibility, VisibilityOff } from "@material-ui/icons";
 import GoogleButton from "react-google-button";
@@ -486,7 +488,7 @@ export default function LandingAuthPage() {
 
           {/* Brand */}
           <div className={classes.brand}>
-            <img src="/crypto-logo.jpg" alt="Logo" className={classes.brandLogo} />
+            <img src="/golden-bull.png" alt="Logo" className={classes.brandLogo} />
             <Typography className={classes.brandName}>Crypto Tracker</Typography>
           </div>
 
@@ -533,7 +535,7 @@ export default function LandingAuthPage() {
 
             {/* Header */}
             <div className={classes.cardHeader}>
-              <img src="/crypto-logo.jpg" alt="Logo" className={classes.cardLogo} />
+              <img src="/golden-bull.png" alt="Logo" className={classes.cardLogo} />
               <Typography className={classes.cardTitle}>
                 {tabValue === 0 ? "Welcome back" : "Get started"}
               </Typography>
