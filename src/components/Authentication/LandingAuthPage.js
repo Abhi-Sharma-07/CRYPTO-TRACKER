@@ -488,7 +488,7 @@ export default function LandingAuthPage() {
 
           {/* Brand */}
           <div className={classes.brand}>
-            <img src="/golden-bull.png" alt="Logo" className={classes.brandLogo} />
+            <img src="/crypto-logo.jpg" alt="Logo" className={classes.brandLogo} />
             <Typography className={classes.brandName}>Crypto Tracker</Typography>
           </div>
 
@@ -501,6 +501,22 @@ export default function LandingAuthPage() {
             Real-time prices, AI insights, and a personal watchlist —
             everything you need to stay ahead of the market.
           </Typography>
+
+          {/* Hero Graphic */}
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "36px" }}>
+            <img
+              src="/crypto-logo.jpg"
+              alt="Crypto Orbit"
+              style={{
+                width: "260px",
+                height: "260px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                boxShadow: "0 0 40px rgba(238, 188, 29, 0.3)",
+                border: "2px solid rgba(238, 188, 29, 0.5)",
+              }}
+            />
+          </div>
 
           {/* Features */}
           <div className={classes.featureList}>
@@ -535,7 +551,7 @@ export default function LandingAuthPage() {
 
             {/* Header */}
             <div className={classes.cardHeader}>
-              <img src="/golden-bull.png" alt="Logo" className={classes.cardLogo} />
+              <img src="/crypto-logo.jpg" alt="Logo" className={classes.cardLogo} />
               <Typography className={classes.cardTitle}>
                 {tabValue === 0 ? "Welcome back" : "Get started"}
               </Typography>

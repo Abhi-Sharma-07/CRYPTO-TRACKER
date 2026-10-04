@@ -139,7 +139,7 @@ export default function AuthModal() {
           <ThemeProvider theme={modalLightTheme}>
             <div className={classes.paper}>
               <Box style={{ display: "flex", justifyContent: "center", alignItems: "center", paddingTop: 16, paddingBottom: 8, gap: 10 }}>
-                <img src="/golden-bull.png" alt="Golden Bull" style={{ width: 42, height: 42, borderRadius: "50%", border: "2px solid #EEBC1D", objectFit: "cover" }} />
+                <img src="/crypto-logo.jpg" alt="Crypto Logo" style={{ width: 42, height: 42, borderRadius: "50%", border: "2px solid #EEBC1D", objectFit: "cover" }} />
                 <span style={{ fontWeight: "bold", fontFamily: "serif", fontSize: "1.1rem" }}>Crypto Tracker</span>
               </Box>
               <AppBar

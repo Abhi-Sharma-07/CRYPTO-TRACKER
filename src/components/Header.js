@@ -95,7 +95,7 @@ function Header() {
               onClick={() => history.push(`/`)}
             >
               <img
-                src="/golden-bull.png"
+                src="/crypto-logo.jpg"
                 alt="Crypto"
                 style={{
                   height: 32,
