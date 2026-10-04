@@ -488,7 +488,7 @@ export default function LandingAuthPage() {
 
           {/* Brand */}
           <div className={classes.brand}>
-            <img src="/crypto-logo.jpg" alt="Logo" className={classes.brandLogo} />
+            <img src="/Cryptooo.png" alt="Logo" className={classes.brandLogo} />
             <Typography className={classes.brandName}>Crypto Tracker</Typography>
           </div>
 
@@ -505,7 +505,7 @@ export default function LandingAuthPage() {
           {/* Hero Graphic */}
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "36px" }}>
             <img
-              src="/crypto-logo.jpg"
+              src="/Cryptooo.png"
               alt="Crypto Orbit"
               style={{
                 width: "260px",
@@ -551,7 +551,7 @@ export default function LandingAuthPage() {
 
             {/* Header */}
             <div className={classes.cardHeader}>
-              <img src="/crypto-logo.jpg" alt="Logo" className={classes.cardLogo} />
+              <img src="/Cryptooo.png" alt="Logo" className={classes.cardLogo} />
               <Typography className={classes.cardTitle}>
                 {tabValue === 0 ? "Welcome back" : "Get started"}
               </Typography>

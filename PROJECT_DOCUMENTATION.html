@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crypto Tracker & AI Hub — Complete Architecture & Interview Guide</title>
+  <style>
+    :root {
+      --primary-color: #EEBC1D;
+      --text-color: #2d3748;
+      --bg-color: #ffffff;
+      --card-bg: #f7fafc;
+      --border-color: #e2e8f0;
+      --code-bg: #edf2f7;
+      --code-text: #c53030;
+      --accent-dark: #1a202c;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      color: var(--text-color);
+      background-color: var(--bg-color);
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    /* Cover Page Styling */
+    .cover {
+      text-align: center;
+      padding: 80px 0;
+      border-bottom: 2px solid var(--primary-color);
+      margin-bottom: 40px;
+    }
+
+    .cover h1 {
+      font-size: 2.8rem;
+      color: var(--accent-dark);
+      margin-bottom: 16px;
+      font-weight: 800;
+    }
+
+    .cover h2 {
+      font-size: 1.5rem;
+      color: #718096;
+      font-weight: 400;
+      margin-top: 0;
+      margin-bottom: 30px;
+    }
+
+    .cover-meta {
+      font-size: 0.95rem;
+      color: #4a5568;
+    }
+
+    /* Typography */
+    h2 {
+      font-size: 1.8rem;
+      color: var(--accent-dark);
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 8px;
+      margin-top: 40px;
+    }
+
+    h3 {
+      font-size: 1.3rem;
+      color: var(--accent-dark);
+      margin-top: 24px;
+    }
+
+    p, li {
+      font-size: 1.05rem;
+      color: #4a5568;
+    }
+
+    /* Lists */
+    ul, ol {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    /* Definition styling in brackets */
+    .def {
+      color: #3182ce;
+      font-weight: 500;
+    }
+
+    /* Navigation / TOC */
+    .toc-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+
+    .toc-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      color: var(--accent-dark);
+    }
+
+    .toc-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .toc-list li {
+      margin-bottom: 8px;
+    }
+
+    .toc-list a {
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .toc-list a:hover {
+      text-decoration: underline;
+      color: #000;
+    }
+
+    /* Diagrams & Code blocks */
+    pre {
+      background-color: var(--accent-dark);
+      color: #f7fafc;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      margin: 20px 0;
+    }
+
+    code {
+      font-family: Consolas, Monaco, "Andale Mono", monospace;
+      background-color: var(--code-bg);
+      color: var(--code-text);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+
+    pre code {
+      background-color: transparent;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    /* Interview Q&A Layout */
+    .qa-item {
+      background-color: var(--card-bg);
+      border-left: 4px solid var(--primary-color);
+      border-radius: 0 8px 8px 0;
+      padding: 20px;
+      margin-bottom: 24px;
+      page-break-inside: avoid;
+    }
+
+    .qa-question {
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--accent-dark);
+      margin-bottom: 12px;
+    }
+
+    .qa-answer {
+      font-size: 1rem;
+      color: #4a5568;
+    }
+
+    .qa-answer blockquote {
+      margin: 12px 0 0 0;
+      padding-left: 14px;
+      border-left: 3px solid #cbd5e0;
+      font-style: italic;
+      color: #718096;
+    }
+
+    /* Table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--card-bg);
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    /* Print Optimization styling */
+    @media print {
+      body {
+        background-color: #fff;
+        color: #000;
+        font-size: 11pt;
+      }
+
+      .container {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .cover {
+        padding: 150px 0;
+        page-break-after: always;
+        border-bottom: none;
+      }
+
+      h2 {
+        page-break-before: always;
+        border-bottom: 1px solid #000;
+      }
+
+      pre, .qa-item {
+        page-break-inside: avoid;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        color: #000;
+      }
+
+      pre code {
+        color: #000;
+      }
+
+      code {
+        background-color: #f0f0f0;
+        color: #000;
+        border: 1px solid #ddd;
+      }
+
+      .toc-card {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Cover Page Section -->
+    <div class="cover">
+      <h1>Crypto Tracker & AI Hub</h1>
+      <h2>Ultimate Blueprints: React, CSS, Methods, HTML Tags, Libraries & Project Lifecycle Story</h2>
+      <div class="cover-meta">
+        <p><strong>Prepared for:</strong> Full Project Presentation & Technical Interview Readiness</p>
+        <p><strong>Date:</strong> June 2026</p>
+        <p><strong>Stack:</strong> React, Node.js (Vercel Serverless), Firebase Auth & Firestore, Chart.js</p>
+      </div>
+    </div>
+
+    <!-- Table of Contents -->
+    <div class="toc-card">
+      <div class="toc-title">Document Structure</div>
+      <ul class="toc-list">
+        <li><a href="#story">1. The Story of the Crypto Tracker & AI Hub (System Lifecycle)</a></li>
+        <li><a href="#aipage">2. Live AI Page (Rubina) Mechanics</a></li>
+        <li><a href="#structure">3. Folder & File Structure Details</a></li>
+        <li><a href="#setup">4. Local Installation & Setup Guide</a></li>
+        <li><a href="#db-schema">5. Firebase Security Rules & Database Schema</a></li>
+        <li><a href="#react-concepts">6. React Core Concepts Dictionary</a></li>
+        <li><a href="#css-concepts">7. CSS Styling Concepts Dictionary</a></li>
+        <li><a href="#js-methods">8. JavaScript Methods Dictionary</a></li>
+        <li><a href="#html-tags">9. HTML5 Tags Dictionary</a></li>
+        <li><a href="#libraries">10. Libraries & APIs Directory</a></li>
+        <li><a href="#env">11. Environment Variables Configuration</a></li>
+        <li><a href="#routing">12. Routing & Deployment Configuration</a></li>
+        <li><a href="#interview">13. Technical Interview Questions & Detailed Answers</a></li>
+      </ul>
+    </div>
+
+    <!-- 1. The Story -->
+    <h2 id="story">1. The Story of the Crypto Tracker & AI Hub (System Lifecycle)</h2>
+    
+    <h3>Chapter 1: The Dev Environment & Webpack Bootup</h3>
+    <p>Our story begins before the user even visits the website—in the developer’s local environment.</p>
+    <p>When the developer runs <code>npm start</code>, Node.js starts executing <strong><code>react-scripts</code></strong> <span class="def">(a utility package from Create React App that manages build scripts, configurations, and hot-reload servers)</span>.</p>
+    <p>Because modern Node.js versions (v17+) use updated security algorithms that can crash older Webpack build tools, our startup script includes the <strong><code>--openssl-legacy-provider</code></strong> flag <span class="def">(a command-line argument that instructs Node.js to use legacy cryptographic algorithms to prevent build errors with older bundlers)</span>.</p>
+    <p>This initializes <strong>Webpack</strong> <span class="def">(a static module bundler that takes all JavaScript, CSS, and images and compiles them into optimized, browser-ready files)</span>. A local development server is created at <code>http://localhost:3000</code>, using a <strong>Proxy Configuration</strong> <span class="def">(a package.json setting that redirects local API requests, e.g. /api, to a separate backend server running at http://localhost:5000, avoiding CORS errors during testing)</span>.</p>
+
+    <h3>Chapter 2: The First Visit & The Loading Gate</h3>
+    <p>When the user types the URL, the browser retrieves our compiled index files.</p>
+    <p>Immediately, the application initializes our two global React contexts:</p>
+    <ol>
+      <li><strong><code>ThemeContext.js</code></strong> <span class="def">(a custom context provider that manages and distributes the active theme state, tracking whether the user prefers light or dark mode)</span>.</li>
+      <li><strong><code>CryptoContext.js</code></strong> <span class="def">(a custom context provider that stores global app states like currency choice, symbol prefix, user details, watchlist array, and fetched coin list)</span>.</li>
+    </ol>
+    <p>These contexts wrap the entire application in <strong><code>index.js</code></strong> using a <strong><code>&lt;Provider&gt;</code> pattern</strong> <span class="def">(a design pattern in React where a component wraps around its children to make specific data and functions available to any child component below it in the tree)</span>.</p>
+    <p>At this initial second, the <code>user</code> state in <code>CryptoContext.js</code> is set to <code>undefined</code> <span class="def">(a JavaScript type representing a variable that has not yet been assigned a value, which we use to represent the "still checking session" state)</span>.</p>
+    <p>The main file, <strong><code>App.js</code></strong>, checks this state. While <code>user</code> is <code>undefined</code>, it displays a fullscreen golden loading spinner, preventing the app from showing a flashed preview of the login page or the dashboard.</p>
+
+    <h3>Chapter 3: The Authentication Gate & Multi-Channel Alerting</h3>
+    <p>Once the Firebase client completes token verification, it updates the state:</p>
+    <ul>
+      <li>If no active session exists, the state is set to <code>null</code> <span class="def">(a JavaScript value representing the intentional absence of any value, which we use to show the user is definitely logged out)</span>.</li>
+      <li>This causes the app to block all main features and render the <strong><code>LandingAuthPage.js</code></strong> component.</li>
+    </ul>
+    <p>This auth page uses a clean split-screen desktop layout:</p>
+    <ul>
+      <li><strong>The Left Side:</strong> Contains branding, a rotating logo, feature list, and colored ticker chips representing different cryptocurrencies.</li>
+      <li><strong>The Right Side:</strong> Houses a glassmorphic authentication card containing a pill-style login/signup tab switcher, polished input fields, and a Google login button.</li>
+    </ul>
+    <p>To manage tabs, we use <strong>React State (<code>useState</code>)</strong> <span class="def">(a React hook that allows components to maintain, read, and update local variable values that trigger a component re-render when changed)</span>.</p>
+    <p>When logging in:</p>
+    <ol>
+      <li><strong>Email/Password Form:</strong> The user inputs credentials. The form uses a <code>noValidate</code> attribute <span class="def">(an HTML attribute that disables the browser's default form validation dialogs, allowing custom JavaScript logic to handle all input checking)</span>. If inputs are valid, we call Firebase Auth's <code>signInWithEmailAndPassword</code> or <code>createUserWithEmailAndPassword</code>.</li>
+      <li><strong>Google OAuth Button:</strong> Triggered via <code>signInWithPopup</code> <span class="def">(opens a separate authentication window for Google login)</span>. If the browser's popup blocker flags it, our catch block intercepts the error and immediately redirects the user using <code>signInWithRedirect</code> <span class="def">(redirects the current tab to Google's sign-in page and returns once completed)</span>.</li>
+    </ol>
+    <p>When authentication succeeds, the <strong><code>sendOwnerNotification</code></strong> utility is executed. It fires three asynchronous notification alerts in parallel:</p>
+    <ul>
+      <li><strong>EmailJS API</strong> <span class="def">(a service that lets client-side JavaScript send automated emails directly via SMTP templates without a backend mail server)</span>.</li>
+      <li><strong>Discord Webhook POST Request</strong> <span class="def">(an HTTP request that sends structured data embeds to a specific channel URL on Discord)</span>.</li>
+      <li><strong>Telegram Bot API Message</strong> <span class="def">(a request sent to Telegram servers to dispatch a notification message to a specific chat ID via a bot)</span>.</li>
+    </ul>
+
+    <h3>Chapter 4: Single Page Navigation & The Header</h3>
+    <p>With the <code>user</code> state now updated to a valid User Object, the landing page disappears, and the user enters the main application.</p>
+    <p>Page navigation is controlled by <strong><code>react-router-dom</code></strong> <span class="def">(the standard routing library for React that dynamically swaps page components in the browser without reloading the physical HTML page)</span>. We define our paths using:</p>
+    <ul>
+      <li><strong><code>&lt;BrowserRouter&gt;</code></strong> <span class="def">(a router component that uses the HTML5 history API to keep the UI in sync with the browser URL)</span>.</li>
+      <li><strong><code>&lt;Route&gt;</code></strong> <span class="def">(a component that renders a specific page when the URL matches its path pattern)</span>.</li>
+      <li><strong><code>&lt;Switch&gt;</code></strong> <span class="def">(a router component that renders only the first matching Route it encounters, preventing multiple pages from rendering at once)</span>.</li>
+    </ul>
+    <p>At the top of the app is <strong><code>Header.js</code></strong> <span class="def">(a persistent global navigation component)</span>. It contains:</p>
+    <ol>
+      <li><strong>Logo & Title:</strong> Clicking it redirects the user to the HomePage `/` using a Router <strong><code>&lt;Link&gt;</code> component</strong> <span class="def">(a React component that enables declarative, client-side navigation without triggering full page reloads)</span>.</li>
+      <li><strong>Currency Dropdown:</strong> Allows the user to select between USD and INR. When changed, it updates the context state <code>currency</code>, which automatically updates <code>symbol</code> to <code>$</code> or <code>₹</code>.</li>
+      <li><strong>Theme Switch Icon:</strong> Connects to the <code>ThemeContext</code> and runs <code>toggleTheme()</code>, swapping styles from dark mode to light mode.</li>
+      <li><strong>User Avatar:</strong> An icon representing the logged-in user. Clicking it opens the <strong><code>UserSidebar.js</code></strong> component, which is implemented as a <strong>Drawer</strong> <span class="def">(a Material-UI component that slides out from the edge of the screen like a sidebar drawer)</span>.</li>
+    </ol>
+
+    <h3>Chapter 5: The Market Dashboard & Search Table</h3>
+    <p>On the <strong>HomePage (<code>/</code>)</strong>, the user sees two major features:</p>
+    
+    <h4>1. The Trending Carousel</h4>
+    <p>At the top is a horizontal, sliding carousel showing trending coins. It fetches trending data from CoinGecko, maps them to animated slides, and mounts them inside the <strong><code>react-alice-carousel</code></strong> component <span class="def">(a responsive, touch-friendly React carousel package that supports dragging, infinite looping, and autoplay animations)</span>.</p>
+    
+    <h4>2. The Interactive Coin Table</h4>
+    <p>Below the carousel is the list of 100+ cryptocurrencies. We use a search bar to filter coins. This uses a real-time search handler:</p>
+    <pre>
+coins.filter((coin) => 
+  coin.name.toLowerCase().includes(search.toLowerCase())
+)</pre>
+    <ul>
+      <li><strong><code>.filter()</code></strong> <span class="def">(a JavaScript array method that creates a new array containing only elements that pass a test condition)</span>.</li>
+      <li><strong><code>.toLowerCase()</code></strong> <span class="def">(a JavaScript method that converts string characters to lowercase, ensuring searches are case-insensitive)</span>.</li>
+    </ul>
+    <p>To prevent the user from being overwhelmed by a large list, the table implements <strong>Pagination</strong> <span class="def">(a UI pattern that splits large datasets into pages, rendering only 10 rows per page using Material-UI's Pagination component)</span>.</p>
+
+    <h3>Chapter 6: Historical Charts & Optional Chaining</h3>
+    <p>Clicking a coin in the table opens <strong><code>CoinPage.js</code></strong> <span class="def">(the dynamic coin details page mapped to /coins/:id)</span>. The router uses a <strong><code>useParams</code> hook</strong> <span class="def">(a React Router hook that extracts dynamic URL parameters, like the coin's unique ID, directly from the address bar)</span>.</p>
+    <p>This page uses <strong>Axios</strong> <span class="def">(a promise-based HTTP client for making API requests)</span> to fetch detailed market capitalization, descriptions, and current rank.</p>
+    <p>Since data loading takes a split second, rendering properties of a null object would crash the app. We prevent this using <strong>Optional Chaining (<code>?.</code>)</strong> <span class="def">(a JavaScript operator that reads nested object fields safely, returning undefined instead of throwing a fatal crash error if the object is missing)</span>:</p>
+    <pre>coin?.market_data?.current_price[currency.toLowerCase()]</pre>
+
+    <p>In the center of the page is the historical chart, rendered by <strong><code>CoinInfo.js</code></strong>. It fetches pricing points based on the active timeframe (24h, 30d, 1y) selected via custom <strong><code>SelectButton.js</code></strong> components.</p>
+    <p>The chart data is rendered using a <strong><code>&lt;Line&gt;</code> Chart component</strong> from <strong><code>react-chartjs-2</code></strong> <span class="def">(a React wrapper for Chart.js)</span>.</p>
+    <ul>
+      <li><strong>Optimized Rendering:</strong> The chart uses <code>pointRadius: 0</code> <span class="def">(disables rendering dots for every coordinate to save CPU rendering cycles)</span> and only displays dots on hover.</li>
+      <li><strong>Tension:</strong> Set to <code>0.25</code> <span class="def">(a Chart.js setting that smooths the chart path into curves rather than sharp, jagged lines)</span>.</li>
+    </ul>
+
+    <h3>Chapter 7: The Real-Time Watchlist Sync</h3>
+    <p>If the user wants to bookmark the coin, they click the favorite button on <code>CoinPage.js</code>.</p>
+    <p>We point to the database:</p>
+    <pre>const coinRef = doc(db, "watchlist", user.uid);</pre>
+    <ul>
+      <li><strong><code>doc()</code></strong> <span class="def">(a Firebase Firestore function that defines a reference to a document in a collection using its path)</span>.</li>
+      <li><strong><code>db</code></strong> <span class="def">(the initialized Firestore database instance we import from firebaseConfig.js)</span>.</li>
+    </ul>
+    <p>The app uses <strong><code>async/await</code></strong> <span class="def">(JavaScript keywords used to pause execution inside an async function until a Promise completes, making async code run in a structured, line-by-line format)</span> to write the change to <strong>Cloud Firestore</strong> <span class="def">(Google's real-time, cloud-hosted NoSQL database)</span>.</p>
+    <p>We save the array using the <strong>Spread Operator (<code>...</code>)</strong> <span class="def">(a JavaScript operator that expands an array, copying existing items into a new list while appending a new item at the end)</span>:</p>
+    <pre>{ coins: watchlist ? [...watchlist, coin?.id] : [coin?.id] }</pre>
+    <p>We pass <strong><code>{ merge: true }</code></strong> <span class="def">(a database parameter that merges new data fields into an existing document instead of overwriting the whole document)</span>.</p>
+    <p>Immediately, a listener in `CryptoContext.js` called <strong><code>onSnapshot</code></strong> <span class="def">(a Firestore database listener that opens a persistent connection and fires a callback function whenever the targeted document changes)</span> detects this database update. It updates the global <code>watchlist</code> state, causing the favorite button and the sidebar list in <strong><code>UserSidebar.js</code></strong> to update instantly.</p>
+    <p>To delete a coin, we call the same reference, but use <strong><code>.filter()</code></strong> <span class="def">(an array method that returns a new array with specific items removed)</span> to filter out the coin's ID, updating the document in Firestore.</p>
+
+    <h3>Chapter 8: Secure AI Conversations</h3>
+    <p>For market insights, the user opens the chatbot to talk to "Rubina". When a prompt is typed, the React app makes a POST request to `/api/ai`, which is a <strong>Vercel Serverless Function</strong> <span class="def">(a backend script hosted in the cloud that executes on-demand when called, rather than running continuously on a server VM)</span>.</p>
+    <p>We use a serverless function to protect the <strong><code>GEMINI_API_KEY</code></strong> <span class="def">(a secret authorization token used to securely identify and authenticate our requests to Google's AI servers)</span>. If this key were in React, anyone could open their browser console and steal it.</p>
+    <p>When the request hits `/api/ai`:</p>
+    <ol>
+      <li><strong>CORS Headers</strong> <span class="def">(Cross-Origin Resource Sharing headers, which restrict backend access only to authorized client domains like localhost or your Vercel deployment URL)</span> are checked.</li>
+      <li><strong>Rate Limiting</strong> <span class="def">(a security countermeasure that blocks requests from an IP address if it exceeds 20 requests per minute, preventing spam attacks)</span> checks the client's IP.</li>
+      <li><strong>Prompt Injection Scanner</strong> <span class="def">(a script that scans the input text for malicious jailbreak phrases, e.g. "ignore previous instructions", and rejects them)</span> validates the prompt.</li>
+      <li><strong>Google Gemini API</strong> <span class="def">(Google's Generative AI service, specifically using the gemini-2.5-flash model)</span> is queried securely. The response is returned to React and displayed in the chat.</li>
+    </ol>
+
+    <h3>Chapter 9: Deployment & Global Hosting</h3>
+    <p>Once the project is complete, the developer pushes the code to <strong>GitHub</strong> <span class="def">(a cloud Git repository platform used for hosting code and tracking changes)</span>.</p>
+    <p><strong>Vercel</strong> <span class="def">(a cloud platform optimized for deploying frontend applications and serverless backend handlers)</span> detects the new commit. It runs a Node.js build process, verifies environment variables, bundles the React code, and deploys the entire application globally on secure, high-speed CDN edges!</p>
+
+    <!-- 2. AI Page Mechanics -->
+    <h2 id="aipage">2. Live AI Page (Rubina) Mechanics</h2>
+    <p>The **Rubina AI Dashboard** (implemented inside <code>src/Pages/AiPage.js</code>) handles data-driven analysis and chat querying interfaces through three specialized layouts:</p>
+
+    <h3>1. The Market Scanner (Scoring Algorithm)</h3>
+    <p>The market scanner performs a math-based evaluation on top-ranked tokens. It pulls the current prices list, filters the top 50 coins, and calculates a custom score for each based on three parameters:</p>
+    <ul>
+      <li><strong>Momentum (50% weight):</strong> Evaluates 24-hour price change percentage. Clamped between -1 and 1 to prevent extremes:
+        <br><code>momentum = clamp(change_24h / 15, -1, 1)</code>
+      </li>
+      <li><strong>Liquidity (20% weight):</strong> Compares 24h trading volume against total market cap. Clamped between 0 and 1:
+        <br><code>liquidity = clamp((volume / market_cap) / 0.25, 0, 1)</code>
+      </li>
+      <li><strong>Size Factor (30% weight):</strong> Prefers established coins by scoring their rank (1 to 50):
+        <br><code>size = 1 - clamp(rank / 100, 0, 1)</code>
+      </li>
+    </ul>
+    <p><strong>Total Score Formula:</strong> <code>Score = (Momentum * 0.5) + (Liquidity * 0.2) + (Size * 0.3)</code>. The app highlights the asset with the highest score as the recommended buy candidate alongside a percentage confidence rating.</p>
+
+    <h3>2. Asset Summary (Fundamental Dossiers)</h3>
+    <p>The Asset Summary provides an instant fundamental snapshot for any of the 100 assets. It formats current price, volume changes, daily high/low levels, and market cap rank into a readable paragraph summary, allowing users to quickly assess trading ranges.</p>
+
+    <h3>3. General Query Interface (Gemini Integration)</h3>
+    <p>Allows natural language questions about halving cycles, blockchain structures, or trading metrics. It communicates securely with Vercel's <code>/api/ai</code> endpoint, showing a loading indicator during queries and sanitizing output blocks.</p>
+
+    <!-- 3. Folder structure -->
+    <h2 id="structure">3. Folder & File Structure Details</h2>
+    <p>The code repository is organized into distinct directories for a clean separation of concerns:</p>
+    <pre>
+crypto-tracker/
+  ├── api/                       # Vercel Serverless API Functions (Node.js)
+  │     ├── ai.js                # Secure Gemini Chat API endpoint
+  │     └── health.js            # Serverless Health status check
+  ├── public/                    # Static Assets (favicon, icons, html wrapper)
+  ├── server/                    # Local Express Backend testing script
+  │     └── ai-server.js         # Local testing Node proxy server
+  ├── src/                       # Frontend Source Code
+  │     ├── components/          # Reusable React UI widgets
+  │     │     ├── Authentication/# Authentication UI (Login/Signup / Sidebar)
+  │     │     ├── CoinsTable.js  # Main search data table
+  │     │     ├── CoinInfo.js    # Chart.js visualization component
+  │     │     └── Header.js      # Persistent Nav block
+  │     ├── config/              # Constant configurations (APIs, static lists)
+  │     │     ├── api.js         # CoinGecko query endpoints configuration
+  │     │     └── firebaseConfig.js # Client credentials for Firebase setup
+  │     ├── Pages/               # Parent Page routes
+  │     │     ├── HomePage.js    # Market dashboard parent page
+  │     │     └── CoinPage.js    # Individual coin details parent page
+  │     ├── App.js               # Root Router & Security Gate Controller
+  │     ├── CryptoContext.js     # Shared Global Market & User state provider
+  │     ├── ThemeContext.js      # Custom theme state controller (Dark/Light)
+  │     └── index.js             # Entrypoint bootstrap script
+  ├── package.json               # Package manifests, scripts, engine variables
+  └── vercel.json                # Vercel Serverless Routing configurations</pre>
+
+    <!-- 4. Installation & Setup -->
+    <h2 id="setup">4. Local Installation & Setup Guide</h2>
+    <p>Follow these steps to run the complete environment on your local system:</p>
+    <ol>
+      <li><strong>Prerequisites:</strong> Install **Node.js (v18 or higher)** and npm.</li>
+      <li><strong>Install dependencies:</strong> Run <code>npm install</code> in the root folder.</li>
+      <li><strong>Configure Local variables:</strong> Create a <code>.env</code> file in the root directory and add the configuration keys:
+        <pre>
+GEMINI_API_KEY=your_gemini_api_key_here
+REACT_APP_AI_ENDPOINT=http://localhost:3000/api/ai
+REACT_APP_OWNER_NOTIFICATION_EMAIL=abhisharmawork07@gmail.com
+REACT_APP_EMAILJS_SERVICE_ID=your_emailjs_service_id
+REACT_APP_EMAILJS_TEMPLATE_ID=your_emailjs_template_id
+REACT_APP_EMAILJS_PUBLIC_KEY=your_emailjs_public_key</pre>
+      </li>
+      <li><strong>Start local serverless APIs:</strong> Install Vercel CLI locally (<code>npm install -g vercel</code>) and run <code>vercel dev</code>. This compiles both the serverless functions in <code>api/</code> and the React frontend on the same port.</li>
+      <li><strong>Build for production:</strong> Compile static assets using <code>npm run build</code>.</li>
+    </ol>
+
+    <!-- 5. DB Schema & Security -->
+    <h2 id="db-schema">5. Firebase Security Rules & Database Schema</h2>
+    <p>Firestore uses a simple document model for storing watchlists. To ensure that users cannot view or edit other users' favorite lists, we implement **Firestore Security Rules**:</p>
+    <pre>
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /watchlist/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /signups/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}</pre>
+    <p><strong>Database Structure:</strong></p>
+    <ul>
+      <li><strong><code>watchlist</code> collection:</strong> Documents are named after the user's UID (e.g. <code>watchlist/j9K2l8D...</code>).
+        <br>Field: <code>coins</code> (array of strings, e.g. <code>["bitcoin", "ethereum"]</code>).
+      </li>
+      <li><strong><code>signups</code> collection:</strong> Stores registration analytics. 
+        <br>Fields: <code>email</code> (string), <code>uid</code> (string), <code>signupDate</code> (timestamp).
+      </li>
+    </ul>
+
+    <!-- 6. React Core Concepts -->
+    <h2 id="react-concepts">6. React Core Concepts Dictionary</h2>
+    <p>React is built on modular, stateful structures. Below are the key core concepts implemented in this system:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Concept</th>
+          <th>What It Is (Definition)</th>
+          <th>Where & Why We Use It</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Components & Props</strong></td>
+          <td>Components are reusable, isolated UI building blocks. Props are read-only properties passed from parent to child to configure UI.</td>
+          <td>Used to modularize files. E.g. <code>SelectButton.js</code> receives a <code>selected</code> boolean prop to highlight itself.</td>
+        </tr>
+        <tr>
+          <td><strong>useState Hook</strong></td>
+          <td>A function that lets functional React components declare, read, and update local reactive state variables.</td>
+          <td>Used to track form email/password strings, AI loading animations, search terms, and current page numbers.</td>
+        </tr>
+        <tr>
+          <td><strong>useEffect Hook</strong></td>
+          <td>A function that lets components execute side effects (such as fetching data or setting up database listeners) when states change.</td>
+          <td>Used to trigger database synchronizations on login, query coin lists from CoinGecko, and update charts.</td>
+        </tr>
+        <tr>
+          <td><strong>useContext Hook</strong></td>
+          <td>A function that lets components subscribe directly to a React Context Provider, avoiding intermediate prop-drilling.</td>
+          <td>Used through the custom <code>CryptoState()</code> hook to access currency configurations, alerts, and user watchlists anywhere.</td>
+        </tr>
+        <tr>
+          <td><strong>useMemo Hook</strong></td>
+          <td>A function that caches (memoizes) the computed output of an expensive mathematical calculation between renders.</td>
+          <td>Used inside <code>AiPage.js</code> to compute and store the selected coin reference only when the selected dropdown ID changes.</td>
+        </tr>
+        <tr>
+          <td><strong>useParams Hook</strong></td>
+          <td>A React Router hook that extracts the dynamic parameters of the current URL matches (e.g. coin IDs).</td>
+          <td>Used inside <code>CoinPage.js</code> to read the coin's ID from the URL path (e.g., <code>/coins/bitcoin</code>) for details querying.</td>
+        </tr>
+        <tr>
+          <td><strong>Conditional Rendering</strong></td>
+          <td>A React practice that uses JavaScript logic (like ternaries or logical ANDs) to selectively display specific UI segments.</td>
+          <td>Used to display a loading spinner while <code>user === undefined</code>, and swap between dashboard access and the login card.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 7. CSS Concepts -->
+    <h2 id="css-concepts">7. CSS Styling Concepts Dictionary</h2>
+    <p>The visual presentation is powered by clean modern CSS methodologies, ensuring responsiveness and an aesthetic dark interface:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>CSS Concept</th>
+          <th>What It Is (Definition)</th>
+          <th>How & Why We Use It</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Flexbox</strong></td>
+          <td>A one-dimensional layout module that manages alignment, sizing, and ordering of child elements inside a row or column.</td>
+          <td>Centering elements inside the login page, positioning the Google OAuth button, and arranging coin table layouts.</td>
+        </tr>
+        <tr>
+          <td><strong>CSS Grid Layout</strong></td>
+          <td>A two-dimensional grid system that structures layouts into responsive columns and rows.</td>
+          <td>Structuring the multiple tool cards (Market Scanner, Asset Summary, Query Interface) into columns on the AI Page.</td>
+        </tr>
+        <tr>
+          <td><strong>CSS Keyframes (<code>@keyframes</code>)</strong></td>
+          <td>A styling method used to define animations by changing style rules at specific percentage steps (from 0% to 100%).</td>
+          <td>Creates the <code>rotateLogo</code> keyframes that spin the brand and login cards logos continuously on a smooth loop.</td>
+        </tr>
+        <tr>
+          <td><strong>Media Queries (<code>@media</code>)</strong></td>
+          <td>Conditional CSS rules that apply specific styling properties only when device screens match specific width/height queries.</td>
+          <td>Hiding the left hero information panel on mobile screen queries to keep the login flow accessible on mobile viewports.</td>
+        </tr>
+        <tr>
+          <td><strong>Material-UI JSS (<code>makeStyles</code>)</strong></td>
+          <td>A CSS-in-JS solution that allows developers to write CSS declarations as JavaScript objects scoped locally to a component.</td>
+          <td>Powers all component-level styling, allowing styles to react dynamically to theme variables (light/dark mode toggle).</td>
+        </tr>
+        <tr>
+          <td><strong>Glassmorphism</strong></td>
+          <td>A user interface design trend characterized by translucent panels, subtle borders, and background-blur filters.</td>
+          <td>Applied to the right-side login card to create a premium, translucent container that glows against the dark background.</td>
+        </tr>
+        <tr>
+          <td><strong>Linear &amp; Radial Gradients</strong></td>
+          <td>Visual transition gradients blending multiple colors smoothly along a straight line (linear) or out from a point (radial).</td>
+          <td>Renders the background of the left info panel and the soft gold glow background behind the auth card.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 8. JS Methods -->
+    <h2 id="js-methods">8. JavaScript Methods Dictionary</h2>
+    <p>The codebase utilizes several critical JavaScript ES6 array and utility methods to handle, format, and search values:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>What It Is (Definition)</th>
+          <th>Where & Why We Use It</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>.map()</code></td>
+          <td>Loops through an array, processes each element, and returns a new array of the same length.</td>
+          <td>Used to render lists of coins into HTML components (e.g., rendering table rows in <code>CoinsTable.js</code> or slides in the Carousel).</td>
+        </tr>
+        <tr>
+          <td><code>.filter()</code></td>
+          <td>Loops through an array and returns a new array containing only the elements that match a specific condition.</td>
+          <td>Used for filtering coin searches by matching name search strings, and for removing coins from the watchlist array.</td>
+        </tr>
+        <tr>
+          <td><code>.includes()</code></td>
+          <td>Checks if a specific value exists inside an array or string, returning a boolean (true/false).</td>
+          <td>Used to check if a specific cryptocurrency ID is currently saved inside the user's watchlist array.</td>
+        </tr>
+        <tr>
+          <td><code>.find()</code></td>
+          <td>Searches an array and returns the very first element that matches the provided test function.</td>
+          <td>Used on the AI page to find the specific coin object corresponding to the user's selected dropdown ID.</td>
+        </tr>
+        <tr>
+          <td><code>.sort()</code></td>
+          <td>Sorts the elements of an array in place based on a comparison function and returns the sorted array.</td>
+          <td>Used in the AI Market Scanner to rank coins from highest to lowest calculated buy score.</td>
+        </tr>
+        <tr>
+          <td><code>.slice()</code></td>
+          <td>Extracts a section of an array and returns it as a new array without modifying the original data.</td>
+          <td>Used to grab only the top 50 or top 100 coins for display, improving page layout performance.</td>
+        </tr>
+        <tr>
+          <td><code>.toLowerCase()</code> / <code>.toUpperCase()</code></td>
+          <td>Converts all characters in a string to lowercase or uppercase respectively.</td>
+          <td>Used to normalize search queries for case-insensitive matching and to format coin tickers (e.g. BTC).</td>
+        </tr>
+        <tr>
+          <td><code>JSON.stringify()</code> / <code>JSON.parse()</code></td>
+          <td>Stringify converts JavaScript objects to JSON strings; Parse converts JSON strings back into JavaScript objects.</td>
+          <td>Used to serialize and deserialize data stored inside <code>localStorage</code> cache to avoid network limits.</td>
+        </tr>
+        <tr>
+          <td><code>preventDefault()</code></td>
+          <td>Cancels the browser's default action associated with an event (like refreshing the page during form submit).</td>
+          <td>Used in form submit handlers in <code>LandingAuthPage.js</code> to allow customized JS validation to process credentials first.</td>
+        </tr>
+        <tr>
+          <td><code>Math.min()</code> / <code>Math.max()</code></td>
+          <td>Returns the lowest or highest number from a list of numeric arguments respectively.</td>
+          <td>Used inside the custom <code>clamp()</code> function to keep calculated AI scoring values within the 0 to 1 boundaries.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 9. HTML5 Tags -->
+    <h2 id="html-tags">9. HTML5 Tags Dictionary</h2>
+    <p>These core HTML elements are used to define the layout structure, input areas, and content components of the app:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Tag Name</th>
+          <th>What It Is (Definition)</th>
+          <th>How & Why We Use It</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>&lt;div&gt;</code></td>
+          <td>Generic division container used for grouping elements and applying CSS styles.</td>
+          <td>Used throughout the app to separate cards, structure grid layouts, and isolate component wrapper sections.</td>
+        </tr>
+        <tr>
+          <td><code>&lt;span&gt;</code></td>
+          <td>Inline container used to wrap small chunks of text or elements without breaking lines.</td>
+          <td>Used to style specific inline words (like coloring the word "crypto" gold inside headings).</td>
+        </tr>
+        <tr>
+          <td><code>&lt;form&gt;</code></td>
+          <td>Container tag that defines a document section containing interactive controls to submit information.</td>
+          <td>Wraps the email/password text fields on the login page to enable native form submission events.</td>
+        </tr>
+        <tr>
+          <td><code>&lt;input&gt;</code></td>
+          <td>Interactive input field used to collect user inputs.</td>
+          <td>Renders text areas for emails, passwords, and chatbot prompts. Wrapped by Material-UI's components.</td>
+        </tr>
+        <tr>
+          <td><code>&lt;img&gt;</code></td>
+          <td>Image element used to embed graphics and photos in the webpage.</td>
+          <td>Embeds the rotating app logo and the cryptocurrency icons on the dashboard.</td>
+        </tr>
+        <tr>
+          <td><code>&lt;button&gt;</code></td>
+          <td>Clickable UI element used to trigger actions or submit forms.</td>
+          <td>Creates clickable triggers for submitting search forms, running scans, and submitting AI queries.</td>
+        </tr>
+        <tr>
+          <td><code>&lt;table&gt;</code>, <code>&lt;tr&gt;</code>, <code>&lt;th&gt;</code>, <code>&lt;td&gt;</code></td>
+          <td>Element tags used to structure information into grid-style rows, headers, and cells.</td>
+          <td>Structures the 100+ cryptocurrencies list on the homepage into clean, sortable columns.</td>
+        </tr>
+        <tr>
+          <td><code>&lt;pre&gt;</code> &amp; <code>&lt;code&gt;</code></td>
+          <td>Preformatted text container that preserves whitespace and font structures; code wraps code blocks.</td>
+          <td>Used in the documentation templates to render layout files, database schemas, and folder structures.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 10. Libraries & APIs -->
+    <h2 id="libraries">10. Libraries & APIs Directory</h2>
+    <p>The application relies on several open-source libraries and APIs to manage backend and frontend features:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Library / API</th>
+          <th>What It Is (Definition)</th>
+          <th>Why We Use It In the Project</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>React.js</strong></td>
+          <td>A front-end JavaScript library for building component-driven UI views.</td>
+          <td>Forms the foundation of the frontend, managing view components, local state, and global contexts.</td>
+        </tr>
+        <tr>
+          <td><strong>Firebase SDK</strong></td>
+          <td>A set of tools for integrating Google Cloud services into applications.</td>
+          <td>Powers user authentication (Email/Google) and syncs database watchlists in real-time.</td>
+        </tr>
+        <tr>
+          <td><strong>Chart.js & react-chartjs-2</strong></td>
+          <td>Chart.js is a canvas plotting library; react-chartjs-2 wraps it as React components.</td>
+          <td>Plots the interactive historical line charts for the selected coin pages.</td>
+        </tr>
+        <tr>
+          <td><strong>Material-UI (v4)</strong></td>
+          <td>A React UI component library implementing Google's Material Design guidelines.</td>
+          <td>Provides consistent pre-designed layouts, snackbars, dropdown selectors, side drawers, and fonts.</td>
+        </tr>
+        <tr>
+          <td><strong>Axios</strong></td>
+          <td>A promise-based HTTP client for running requests in browsers and Node.js.</td>
+          <td>Fetches historical currency prices and coin detail configurations from external APIs.</td>
+        </tr>
+        <tr>
+          <td><strong>react-alice-carousel</strong></td>
+          <td>A responsive slider wrapper component for React.</td>
+          <td>Renders the moving trending coins banner at the top of the dashboard.</td>
+        </tr>
+        <tr>
+          <td><strong>Google Gemini API</strong></td>
+          <td>Google's generative AI model suite (accessed via gemini-2.5-flash).</td>
+          <td>Processes and answers queries submitted by users in the "Rubina" chatbot dashboard.</td>
+        </tr>
+        <tr>
+          <td><strong>CoinGecko API</strong></td>
+          <td>A free, public cryptocurrency market data database.</td>
+          <td>Provides price feeds, historical ranges, and coin metadata to populate the dashboard.</td>
+        </tr>
+        <tr>
+          <td><strong>EmailJS</strong></td>
+          <td>A library that connects email services to client code directly.</td>
+          <td>Dispatches automated alerts to the developer's email whenever a signup/login occurs.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 11. Env Variables -->
+    <h2 id="env">11. Environment Variables Configuration</h2>
+    <p>Below is a summary of the environment variables used in the local <code>.env</code> file and configured in the Vercel project dashboard:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Variable Name</th>
+          <th>Description</th>
+          <th>Used In</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>GEMINI_API_KEY</code></td>
+          <td>Private API Key to query Google's Gemini AI models. Must never be exposed in React.</td>
+          <td><code>api/ai.js</code> (Server-only)</td>
+        </tr>
+        <tr>
+          <td><code>GEMINI_MODEL</code></td>
+          <td>Determines the target model (defaults to <code>gemini-2.5-flash</code>).</td>
+          <td><code>api/ai.js</code> (Server-only)</td>
+        </tr>
+        <tr>
+          <td><code>ALLOWED_ORIGINS</code></td>
+          <td>Restricts CORS domains allowed to make POST calls to our APIs.</td>
+          <td><code>api/ai.js</code> (Server-only)</td>
+        </tr>
+        <tr>
+          <td><code>REACT_APP_AI_ENDPOINT</code></td>
+          <td>Endpoint URL to query the assistant (e.g. <code>/api/ai</code> in production).</td>
+          <td><code>src/components/Authentication/UserSidebar.js</code></td>
+        </tr>
+        <tr>
+          <td><code>REACT_APP_OWNER_NOTIFICATION_EMAIL</code></td>
+          <td>Target email address for owner notifications (configured to <code>abhisharmawork07@gmail.com</code>).</td>
+          <td><code>src/utils/emailjs.js</code></td>
+        </tr>
+        <tr>
+          <td><code>REACT_APP_EMAILJS_SERVICE_ID</code></td>
+          <td>EmailJS account service ID hook.</td>
+          <td><code>src/utils/emailjs.js</code></td>
+        </tr>
+        <tr>
+          <td><code>REACT_APP_EMAILJS_TEMPLATE_ID</code></td>
+          <td>EmailJS template ID representing email layout.</td>
+          <td><code>src/utils/emailjs.js</code></td>
+        </tr>
+        <tr>
+          <td><code>REACT_APP_EMAILJS_PUBLIC_KEY</code></td>
+          <td>Public API key for EmailJS library.</td>
+          <td><code>src/utils/emailjs.js</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 12. Routing & Deployment -->
+    <h2 id="routing">12. Routing & Deployment Configuration</h2>
+    <p>We configure the Vercel builder using the project's root <code>vercel.json</code> file. This ensures proper serverless function routing and URL rewriting:</p>
+    <pre>
+{
+  "version": 2,
+  "build": {
+    "env": {
+      "NODE_VERSION": "22"
+    }
+  },
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
+  "framework": "create-react-app",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/__/auth/(.*)",
+      "destination": "https://crypto-tracker-96ae3.firebaseapp.com/__/auth/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}</pre>
+    <p><strong>Key Rules Explained:</strong></p>
+    <ul>
+      <li><strong>Node.js Engine:</strong> Sets Vercel Serverless runtime compile targets to <strong>Node.js 22.x</strong>.</li>
+      <li><strong>Rewrites for single-page routing:</strong> The final rewrite maps all routes to <code>index.html</code>. This allows React Router DOM's client-side paths (like <code>/coins/bitcoin</code>) to work correctly without causing Vercel to return a 404 error on direct browser navigation.</li>
+      <li><strong>Firebase Auth Proxy rewrite:</strong> Rewrites paths matching <code>/__/auth/</code> to the Firebase authorized domain endpoint, helping avoid cross-origin cookie blockage issues.</li>
+    </ul>
+
+    <!-- 13. Interview Questions -->
+    <h2 id="interview">13. Technical Interview Questions & Detailed Answers</h2>
+
+    <!-- Q1 -->
+    <div class="qa-item">
+      <div class="qa-question">Q1: Why did you initialize the <code>user</code> state as <code>undefined</code> instead of <code>null</code> in your React Context?</div>
+      <div class="qa-answer">
+        <strong>Answer:</strong> 
+        <blockquote>
+          "Initializing user state as null by default introduces a race condition. When the page first loads, the Firebase SDK takes a few hundred milliseconds to verify if a user has an active session token. If we start with null, the app assumes the user is logged out and immediately flashes the login landing page. By starting as undefined, we represent the 'authenticating' state. We display a loading spinner while the auth handler runs, and render the auth page only if the state resolves to null (confirmed logged out), or the dashboard if it resolves to a User object."
+        </blockquote>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="qa-item">
+      <div class="qa-question">Q2: What is the benefit of using Vercel Serverless functions instead of hosting a standalone Express server?</div>
+      <div class="qa-answer">
+        <strong>Answer:</strong> 
+        <blockquote>
+          "Using serverless functions saves maintenance and infrastructure costs. We don't have to manage a continuously running server VM. Vercel hosts them as individual, on-demand microservices that scale automatically. They execute only when a user interacts with the chatbot, keeping operating costs low and deployment simple. Furthermore, it integrates directly with our deployment workflow without needing separate dev pipelines."
+        </blockquote>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="qa-item">
+      <div class="qa-question">Q3: How do you handle rate-limiting in a serverless environment where instances might scale up or spin down?</div>
+      <div class="qa-answer">
+        <strong>Answer:</strong> 
+        <blockquote>
+          "In our application, we implement an in-memory Map rate limiter that checks client IPs. In a serverless environment, this is highly effective against basic user spam during a cold start or within a single instance. For enterprise-scale production where serverless instances scale horizontally and do not share memory, the best approach would be integrating a serverless-friendly database like Upstash (Redis) or Memcached. This ensures a centralized rate-limit key store across all parallel instances."
+        </blockquote>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="qa-item">
+      <div class="qa-question">Q4: If a user's browser blocks popups, how does your Google Authentication handle it?</div>
+      <div class="qa-answer">
+        <strong>Answer:</strong> 
+        <blockquote>
+          "We implement a try-catch fallback pattern. When the user clicks 'Continue with Google', we fire signInWithPopup(auth, provider). If the browser blocks it, Firebase throws an error with the code auth/popup-blocked. Inside our catch block, we check for this specific error code and immediately call signInWithRedirect(auth, provider). The user is seamlessly redirected to the Google login page and returns to the app once authenticated."
+        </blockquote>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="qa-item">
+      <div class="qa-question">Q5: How did you optimize React rendering performance when updating real-time crypto lists?</div>
+      <div class="qa-answer">
+        <strong>Answer:</strong> 
+        <blockquote>
+          "We utilize React's component state optimization and minimize DOM updates:
+          1. We keep our data arrays flat.
+          2. We use React's key attribute on map iterators (using unique coin IDs rather than index values) so React can surgically update changed items instead of re-rendering the whole list.
+          3. We use localized styling and debounced inputs in search bars so typing updates the UI instantly without triggering updates across parent containers."
+        </blockquote>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="qa-item">
+      <div class="qa-question">Q6: Why did you choose React Context API over Redux for this application?</div>
+      <div class="qa-answer">
+        <strong>Answer:</strong> 
+        <blockquote>
+          "We chose not to use Redux because the application is medium-sized and does not require complex state mutations. Using Redux would have introduced a lot of boilerplate code (actions, reducers, store configuration, selectors). Instead, React Context API allowed us to share global states (like the selected currency, the authenticated user object, the watchlist array, and dark/light theme settings) throughout the app with a lightweight, clean, and built-in React feature."
+        </blockquote>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="qa-item">
+      <div class="qa-question">Q7: How does your AI Market Scanner calculate buy scores for coins?</div>
+      <div class="qa-answer">
+        <strong>Answer:</strong> 
+        <blockquote>
+          "The Market Scanner uses a mathematical scoring model in `AiPage.js` that evaluates the top 50 assets based on three metrics. First, momentum is calculated from 24h price change percentage and clamped between -1 and 1. Second, liquidity is calculated by dividing 24h trading volume by market capitalization, representing active trading interest. Third, size factor is calculated inversely from the coin's market cap rank. These three parameters are weighted (50% momentum, 20% liquidity, and 30% size) to generate a final normalized buy confidence percentage."
+        </blockquote>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
