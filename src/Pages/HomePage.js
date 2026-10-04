@@ -35,7 +35,7 @@ const Homepage = () => {
         }}
       >
         <img
-          src="/crypto.jpg"
+          src="/Cryptooo.png"
           alt="Crypto Tracker"
           style={{
             width: 56,
