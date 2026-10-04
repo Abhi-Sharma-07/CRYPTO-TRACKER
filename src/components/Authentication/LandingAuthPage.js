@@ -403,29 +403,39 @@ export default function LandingAuthPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  // Local inline alert state so errors always show even if App-level Alert doesn't render
+  const [localAlert, setLocalAlert] = useState({ open: false, message: "", type: "error" });
 
   const { setAlert } = CryptoState();
+
+  const showError = (message, type = "error") => {
+    setAlert({ open: true, message, type });
+    setLocalAlert({ open: true, message, type });
+  };
 
   const reset = () => { setEmail(""); setPassword(""); setConfirmPassword(""); };
   const handleTabChange = (_, v) => { setTabValue(v); reset(); };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("[Auth] handleSubmit fired, tab:", tabValue, "email:", email);
     if (!email || !password)
-      return setAlert({ open: true, message: "Please fill all fields", type: "error" });
+      return showError("Please fill all fields");
     if (tabValue === 1 && !confirmPassword)
-      return setAlert({ open: true, message: "Please confirm your password", type: "error" });
+      return showError("Please confirm your password");
     if (tabValue === 1 && password !== confirmPassword)
-      return setAlert({ open: true, message: "Passwords do not match", type: "error" });
+      return showError("Passwords do not match");
 
     setLoading(true);
     try {
       if (tabValue === 0) {
+        console.log("[Auth] Attempting login...");
         const { user } = await signInWithEmailAndPassword(auth, email, password);
         logAuthEvent({ eventType: "login", provider: "password", userEmail: user.email, uid: user.uid }).catch(console.error);
         sendOwnerNotification({ type: "login", userEmail: user.email }).catch(console.error);
-        setAlert({ open: true, message: `Welcome back, ${user.email}!`, type: "success" });
+        showError(`Welcome back, ${user.email}!`, "success");
       } else {
+        console.log("[Auth] Attempting signup...");
         const { user } = await createUserWithEmailAndPassword(auth, email, password);
         try {
           await setDoc(doc(db, "signups", user.uid), {
@@ -435,13 +445,14 @@ export default function LandingAuthPage() {
         } catch (dbErr) { console.error("DB save:", dbErr); }
         logAuthEvent({ eventType: "signup", provider: "password", userEmail: user.email, uid: user.uid }).catch(console.error);
         sendOwnerNotification({ type: "signup", userEmail: user.email }).catch(console.error);
-        setAlert({ open: true, message: `Account created! Welcome ${user.email}`, type: "success" });
+        showError(`Account created! Welcome ${user.email}`, "success");
       }
     } catch (error) {
+      console.error("[Auth] Error:", error.code, error.message);
       if (error.code === "auth/email-already-in-use") {
         setTabValue(0);
       }
-      setAlert({ open: true, message: getFirebaseErrorMessage(error, tabValue === 0 ? "Login failed." : "Signup failed."), type: "error" });
+      showError(getFirebaseErrorMessage(error, tabValue === 0 ? "Login failed." : "Signup failed."));
     } finally {
       setLoading(false);
     }
@@ -475,7 +486,7 @@ export default function LandingAuthPage() {
 
           {/* Brand */}
           <div className={classes.brand}>
-            <img src="/golden-bull.png" alt="Logo" className={classes.brandLogo} />
+            <img src="/crypto-logo.jpg" alt="Logo" className={classes.brandLogo} />
             <Typography className={classes.brandName}>Crypto Tracker</Typography>
           </div>
 
@@ -522,7 +533,7 @@ export default function LandingAuthPage() {
 
             {/* Header */}
             <div className={classes.cardHeader}>
-              <img src="/golden-bull.png" alt="Logo" className={classes.cardLogo} />
+              <img src="/crypto-logo.jpg" alt="Logo" className={classes.cardLogo} />
               <Typography className={classes.cardTitle}>
                 {tabValue === 0 ? "Welcome back" : "Get started"}
               </Typography>
@@ -611,6 +622,23 @@ export default function LandingAuthPage() {
         </div>
 
       </div>
+
+      {/* Inline alert — always renders regardless of App.js state */}
+      <Snackbar
+        open={localAlert.open}
+        autoHideDuration={5000}
+        onClose={() => setLocalAlert({ ...localAlert, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <MuiAlert
+          onClose={() => setLocalAlert({ ...localAlert, open: false })}
+          elevation={10}
+          variant="filled"
+          severity={localAlert.type}
+        >
+          {localAlert.message}
+        </MuiAlert>
+      </Snackbar>
     </ThemeProvider>
   );
 }
