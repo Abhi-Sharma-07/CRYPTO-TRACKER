@@ -1,7 +1,48 @@
 // src/services/authApi.js
 // Client API service for JWT + Email OTP authentication
 
-const API_BASE = ""; // Relative path works with CRA proxy ("proxy": "http://localhost:5000")
+const getApiBase = () => {
+  if (process.env.REACT_APP_AUTH_API_ENDPOINT) {
+    return process.env.REACT_APP_AUTH_API_ENDPOINT;
+  }
+  if (
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1")
+  ) {
+    return "http://localhost:5000";
+  }
+  return "";
+};
+
+const parseJsonResponse = async (response, fallbackErrorMessage = "Request failed.") => {
+  const text = await response.text();
+  let data = null;
+
+  if (text && text.trim()) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      // Body is not valid JSON (e.g. HTML proxy page or gateway response)
+      if (!response.ok) {
+        throw new Error(
+          `Server returned an error (status ${response.status}). Please try again later.`
+        );
+      }
+      return {};
+    }
+  }
+
+  if (!response.ok) {
+    const errorMsg =
+      data?.error ||
+      data?.message ||
+      `${fallbackErrorMessage} (HTTP ${response.status})`;
+    throw new Error(errorMsg);
+  }
+
+  return data || {};
+};
 
 const TOKEN_KEY = "crypto_jwt_token";
 const USER_KEY = "crypto_jwt_user";
@@ -70,41 +111,30 @@ export const getStoredUser = () => {
 };
 
 export const sendOtp = async (email) => {
-  const response = await fetch(`${API_BASE}/api/auth/send-otp`, {
+  const response = await fetch(`${getApiBase()}/api/auth/send-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to send verification code.");
-  }
-  return data;
+  return parseJsonResponse(response, "Failed to send verification code.");
 };
 
 export const verifyOtp = async (email, otp) => {
-  const response = await fetch(`${API_BASE}/api/auth/verify-otp`, {
+  const response = await fetch(`${getApiBase()}/api/auth/verify-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, otp }),
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Invalid verification code.");
-  }
-  return data;
+  return parseJsonResponse(response, "Invalid verification code.");
 };
 
 export const signupUser = async ({ email, password, otp }) => {
-  const response = await fetch(`${API_BASE}/api/auth/signup`, {
+  const response = await fetch(`${getApiBase()}/api/auth/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password, otp }),
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Signup failed.");
-  }
+  const data = await parseJsonResponse(response, "Signup failed.");
   if (data.token && data.user) {
     setStoredAuth(data.token, data.user);
   }
@@ -112,15 +142,12 @@ export const signupUser = async ({ email, password, otp }) => {
 };
 
 export const loginUserApi = async ({ email, password }) => {
-  const response = await fetch(`${API_BASE}/api/auth/login`, {
+  const response = await fetch(`${getApiBase()}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Invalid email or password.");
-  }
+  const data = await parseJsonResponse(response, "Invalid email or password.");
   if (data.token && data.user) {
     setStoredAuth(data.token, data.user);
   }
@@ -131,25 +158,29 @@ export const fetchCurrentUser = async (token) => {
   const authToken = token || getStoredToken();
   if (!authToken) return null;
 
-  const response = await fetch(`${API_BASE}/api/auth/me`, {
-    headers: { Authorization: `Bearer ${authToken}` },
-  });
-  if (!response.ok) {
-    clearStoredAuth();
+  try {
+    const response = await fetch(`${getApiBase()}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+    if (!response.ok) {
+      clearStoredAuth();
+      return null;
+    }
+    const data = await parseJsonResponse(response, "Failed to fetch user session.");
+    if (data.user) {
+      setStoredAuth(authToken, data.user);
+    }
+    return data.user;
+  } catch {
     return null;
   }
-  const data = await response.json();
-  if (data.user) {
-    setStoredAuth(authToken, data.user);
-  }
-  return data.user;
 };
 
 export const saveWatchlistApi = async (coins) => {
   const token = getStoredToken();
   if (!token) return;
   try {
-    await fetch(`${API_BASE}/api/auth/watchlist`, {
+    await fetch(`${getApiBase()}/api/auth/watchlist`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

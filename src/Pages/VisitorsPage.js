@@ -61,15 +61,18 @@ const VisitorsPage = () => {
         // Fetch from JWT backend
         const res = await fetch("/api/auth/signups");
         if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data.signups)) {
-            data.signups.forEach((s) => {
-              signupList.push({
-                id: s.uid,
-                email: s.email,
-                signupDate: s.signupDate,
+          const text = await res.text();
+          if (text && text.trim()) {
+            const data = JSON.parse(text);
+            if (Array.isArray(data?.signups)) {
+              data.signups.forEach((s) => {
+                signupList.push({
+                  id: s.uid,
+                  email: s.email,
+                  signupDate: s.signupDate,
+                });
               });
-            });
+            }
           }
         }
       } catch (err) {

@@ -45,9 +45,10 @@ export const getAiReply = async (prompt, provider = "gemini") => {
   if (!response.ok) {
     let message = `AI request failed with status ${response.status}`;
     try {
-      const errData = await response.json();
-      if (errData?.error) {
-        message = errData.error;
+      const errText = await response.text();
+      if (errText && errText.trim()) {
+        const errData = JSON.parse(errText);
+        if (errData?.error) message = errData.error;
       }
     } catch {
       // ignore parse errors and keep fallback message
@@ -55,6 +56,14 @@ export const getAiReply = async (prompt, provider = "gemini") => {
     throw new Error(message);
   }
 
-  const data = await response.json();
-  return data.reply || data.output || data.message || "No response received.";
+  const rawText = await response.text();
+  if (!rawText || !rawText.trim()) {
+    return "No response received.";
+  }
+  try {
+    const data = JSON.parse(rawText);
+    return data.reply || data.output || data.message || "No response received.";
+  } catch {
+    return rawText;
+  }
 };

@@ -198,7 +198,10 @@ const CryptoContext = ({ children }) => {
           { signal: controller.signal }
         );
         if (proxyRes.ok) {
-          data = await proxyRes.json();
+          const proxyText = await proxyRes.text();
+          if (proxyText && proxyText.trim()) {
+            data = JSON.parse(proxyText);
+          }
         }
       } catch {
         // Local proxy not reachable, try direct CoinGecko
@@ -211,7 +214,10 @@ const CryptoContext = ({ children }) => {
           { signal: controller.signal }
         );
         if (directRes.ok) {
-          data = await directRes.json();
+          const directText = await directRes.text();
+          if (directText && directText.trim()) {
+            data = JSON.parse(directText);
+          }
         }
       }
 
