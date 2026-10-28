@@ -50,7 +50,7 @@ function AppContent() {
 
   return (
     <div
-      className={classes.App}
+      className={`${classes.App} ${isDarkMode ? "dark-theme" : "light-theme"}`}
       style={{
         backgroundColor: isDarkMode ? "#14161a" : "#faf8f3",
         color: isDarkMode ? "white" : "#000",

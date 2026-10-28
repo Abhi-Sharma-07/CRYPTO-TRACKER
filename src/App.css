@@ -11,15 +11,27 @@ a {
   text-decoration: none;
 }
 
-/* Fix browser autofill white background in dark theme */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
+/* Browser autofill styles: dark theme vs light theme */
+.dark-theme input:-webkit-autofill,
+.dark-theme input:-webkit-autofill:hover,
+.dark-theme input:-webkit-autofill:focus,
+.dark-theme input:-webkit-autofill:active,
+.dark-theme textarea:-webkit-autofill {
   -webkit-text-fill-color: #ffffff !important;
-  -webkit-box-shadow: 0 0 0px 1000px #20232a inset !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+.light-theme input:-webkit-autofill,
+.light-theme input:-webkit-autofill:hover,
+.light-theme input:-webkit-autofill:focus,
+.light-theme input:-webkit-autofill:active,
+.light-theme textarea:-webkit-autofill {
+  -webkit-text-fill-color: #0f172a !important;
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 
 /* Custom dark scrollbar for modals */
 .custom-scrollbar::-webkit-scrollbar {

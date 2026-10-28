@@ -99,14 +99,14 @@ const Footer = () => {
             style={{ marginTop: 8, color: isDarkMode ? "gold" : "black", fontFamily: "serif" }}
           >
             <a
-              href="mailto:abhichiku44@gmail.com"
+              href="mailto:support@cryptotracker.com"
               style={{
                 cursor: "pointer",
                 color: "inherit",
                 textDecoration: "none",
               }}
             >
-              abhichiku44@gmail.com
+              support@cryptotracker.com
             </a>
           </Typography>
           <Typography

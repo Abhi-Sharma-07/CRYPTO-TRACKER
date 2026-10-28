@@ -129,7 +129,7 @@ const AboutPage = () => {
           Have questions or feedback? We'd love to hear from you!
         </Typography>
         <Typography variant="body1" style={{ fontFamily: "serif" }}>
-          Email: abhichiku44@gmail.com
+          Email: support@cryptotracker.com
         </Typography>
         <Typography variant="body1" style={{ fontFamily: "serif" }}>
           Website: www.cryptotracker.com
