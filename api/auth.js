@@ -4,8 +4,35 @@
  */
 
 import crypto from "crypto";
+import nodemailer from "nodemailer";
 
 const JWT_SECRET = process.env.JWT_SECRET || "crypto_tracker_jwt_secret_key_2026_secured";
+
+// Mailer setup (Nodemailer for Gmail or custom SMTP)
+const getMailerTransporter = () => {
+  const host = process.env.SMTP_HOST;
+  const port = Number(process.env.SMTP_PORT || 587);
+  const user = process.env.SMTP_USER || process.env.GMAIL_USER;
+  const pass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+
+  if (host && user && pass) {
+    return nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
+    });
+  }
+
+  if (user && pass) {
+    return nodemailer.createTransport({
+      service: "gmail",
+      auth: { user, pass },
+    });
+  }
+
+  return null;
+};
 
 // In-memory demo stores for serverless runtime
 const otpStore = new Map();
@@ -146,9 +173,37 @@ export default async function handler(req, res) {
         verified: false,
       });
 
+      const transporter = getMailerTransporter();
+      if (transporter) {
+        try {
+          const fromAddr =
+            process.env.EMAIL_FROM ||
+            process.env.GMAIL_USER ||
+            "no-reply@cryptotracker.com";
+          await transporter.sendMail({
+            from: fromAddr.includes("<") ? fromAddr : `"Crypto Tracker" <${fromAddr}>`,
+            to: email,
+            subject: `${otp} is your Crypto Tracker verification code`,
+            text: `Your Crypto Tracker verification code is: ${otp}. It will expire in 10 minutes.`,
+            html: `
+              <div style="font-family: Arial, sans-serif; background: #0b0f19; padding: 32px; color: #f8fafc; border-radius: 8px; max-width: 500px; margin: 0 auto;">
+                <h2 style="color: #eebc1d; margin-top: 0;">Crypto Tracker Verification</h2>
+                <p style="font-size: 15px; color: #cbd5e1;">Use the verification code below to complete your registration:</p>
+                <div style="background: #1e293b; color: #eebc1d; font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 18px; text-align: center; border-radius: 8px; margin: 24px 0; border: 1px solid rgba(238, 188, 29, 0.3);">
+                  ${otp}
+                </div>
+                <p style="color: #94a3b8; font-size: 13px; line-height: 1.5;">This code expires in 10 minutes. If you did not make this request, you can safely disregard this message.</p>
+              </div>
+            `,
+          });
+        } catch (mailErr) {
+          console.error("[api/auth] SMTP delivery error:", mailErr.message);
+        }
+      }
+
       return jsonResponse(200, {
         success: true,
-        message: `Verification code generated for ${email}. Check console/email.`,
+        message: `Verification code sent to ${email}. Please check your inbox or spam folder.`,
       });
     }
 
