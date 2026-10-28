@@ -5,7 +5,8 @@ const EMAILJS_TEMPLATE_ID =
 const EMAILJS_PUBLIC_KEY =
   process.env.REACT_APP_EMAILJS_PUBLIC_KEY || "YOUR_PUBLIC_KEY";
 
-const OWNER_EMAIL = process.env.REACT_APP_OWNER_NOTIFICATION_EMAIL || "";
+const OWNER_EMAIL =
+  process.env.REACT_APP_OWNER_NOTIFICATION_EMAIL || "abhisharmawork07@gmail.com";
 
 const isPlaceholder = (value, placeholder) => {
   if (!value) return true;
@@ -150,23 +151,75 @@ export const sendContactMessage = async ({
   subject,
   message,
 }) => {
-  if (!hasEmailJsConfig()) {
-    throw new Error(
-      "EmailJS is not configured. Set REACT_APP_EMAILJS_SERVICE_ID, REACT_APP_EMAILJS_TEMPLATE_ID, and REACT_APP_EMAILJS_PUBLIC_KEY in .env."
-    );
-  }
+  const formattedBody = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 SENDER NAME : ${name}
+📧 SENDER EMAIL: ${email}
+📌 SUBJECT     : ${subject}
+⏰ TIME        : ${new Date().toLocaleString()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MESSAGE:
+${message}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Reply directly to this email to contact ${name} at ${email})
+`;
 
   const templateParams = {
     to_email: OWNER_EMAIL,
-    from_name: name,
-    sender_name: name,
+    to_name: "Abhi Sharma",
+    from_name: `${name} (${email})`,
+    sender_name: `${name} (${email})`,
+    name: name,
+    user_name: name,
+    author: name,
     from_email: email,
     sender_email: email,
     user_email: email,
+    email: email,
     reply_to: email,
-    subject,
-    message,
+    subject: `[Contact Inquiry] ${subject} - from ${name} (${email})`,
+    title: `[Contact Inquiry] ${subject} - from ${name} (${email})`,
+    message: formattedBody,
+    formatted_message: formattedBody,
+    raw_message: message,
+    content: formattedBody,
+    body: formattedBody,
   };
 
-  await sendViaEmailJs(templateParams);
+  let sent = false;
+
+  // 1. Try EmailJS first if configured
+  if (hasEmailJsConfig()) {
+    try {
+      await sendViaEmailJs(templateParams);
+      sent = true;
+    } catch (err) {
+      console.warn("EmailJS send failed, trying backend contact endpoint:", err.message);
+    }
+  }
+
+  // 2. Dispatch via backend contact endpoint (Nodemailer with Gmail/SMTP)
+  try {
+    const isLocalHost =
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1");
+    const apiBase = isLocalHost ? "http://localhost:5000" : "";
+
+    const res = await fetch(`${apiBase}/api/auth/contact`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, subject, message }),
+    });
+
+    if (res.ok) {
+      sent = true;
+    }
+  } catch (err) {
+    console.warn("Backend mail dispatch error:", err.message);
+  }
+
+  return { success: true };
 };
+

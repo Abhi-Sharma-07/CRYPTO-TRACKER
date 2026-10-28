@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Paper, Button, Typography, Box, CircularProgress } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "../ThemeContext";
@@ -51,7 +51,7 @@ const useStyles = makeStyles({
 const ContactPage = () => {
   const classes = useStyles();
   const { isDarkMode } = useTheme();
-  const { setAlert } = CryptoState();
+  const { user, setAlert } = CryptoState();
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
@@ -61,6 +61,21 @@ const ContactPage = () => {
     subject: "",
     message: "",
   });
+
+  // Pre-fill sender name and email if the user is logged in
+  useEffect(() => {
+    if (user && user.email) {
+      setFormData((prev) => ({
+        ...prev,
+        email: prev.email || user.email,
+        name:
+          prev.name ||
+          user.displayName ||
+          user.name ||
+          (user.email ? user.email.split("@")[0] : ""),
+      }));
+    }
+  }, [user]);
 
   const contactEmail =
     process.env.REACT_APP_CONTACT_EMAIL || "support@cryptotracker.com";

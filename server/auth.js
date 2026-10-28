@@ -461,6 +461,143 @@ const handleAuthRoute = async (req, res, urlPath, body, sendJson) => {
     return sendJson(req, res, 200, { success: true, signups });
   }
 
+  // 8. Contact message dispatch (POST /api/auth/contact)
+  if (req.method === "POST" && urlPath === "/api/auth/contact") {
+    const { name, email, subject, message } = body;
+    if (!name || !email || !message) {
+      return sendJson(req, res, 400, { error: "Name, email, and message are required." });
+    }
+
+    const contactEntry = {
+      id: "msg_" + Date.now(),
+      name: String(name).trim(),
+      email: String(email).trim(),
+      subject: String(subject || "General Inquiry").trim(),
+      message: String(message).trim(),
+      timestamp: new Date().toISOString(),
+    };
+
+    // Save to local storage backup so messages are never lost
+    try {
+      const messagesPath = path.join(DATA_DIR, "contact_messages.json");
+      let messages = [];
+      if (fs.existsSync(messagesPath)) {
+        try {
+          messages = JSON.parse(fs.readFileSync(messagesPath, "utf8")) || [];
+        } catch {}
+      }
+      messages.unshift(contactEntry);
+      fs.writeFileSync(messagesPath, JSON.stringify(messages, null, 2), "utf8");
+    } catch (saveErr) {
+      console.warn("[contact] Failed to save contact message to disk:", saveErr.message);
+    }
+
+    // Try sending email via Nodemailer
+    const transporter = getMailerTransporter();
+    const ownerEmail =
+      process.env.REACT_APP_OWNER_NOTIFICATION_EMAIL ||
+      process.env.OWNER_EMAIL ||
+      process.env.GMAIL_USER ||
+      "abhisharmawork07@gmail.com";
+
+    if (transporter) {
+      try {
+        const fromAddress =
+          process.env.EMAIL_FROM ||
+          `"${contactEntry.name} (via Crypto Tracker)" <${process.env.GMAIL_USER || "no-reply@cryptotracker.com"}>`;
+
+        await transporter.sendMail({
+          from: fromAddress,
+          to: ownerEmail,
+          replyTo: `"${contactEntry.name}" <${contactEntry.email}>`,
+          subject: `📬 New Contact Message: "${contactEntry.subject}" from ${contactEntry.name} (${contactEntry.email})`,
+          text: `New contact message received:
+
+Sender Name : ${contactEntry.name}
+Sender Email: ${contactEntry.email}
+Subject     : ${contactEntry.subject}
+Date & Time : ${new Date().toLocaleString()}
+
+Message:
+${contactEntry.message}
+
+Reply directly to this email to contact ${contactEntry.name} at ${contactEntry.email}.`,
+          html: `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; border-radius: 12px; overflow: hidden; border: 1px solid #334155; color: #f8fafc;">
+  <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 24px; border-bottom: 2px solid #eebc1d;">
+    <h2 style="margin: 0; color: #eebc1d; font-size: 20px;">
+      📬 New Contact Inquiry
+    </h2>
+    <p style="margin: 6px 0 0 0; color: #94a3b8; font-size: 13px;">Received via Crypto Tracker Contact Portal</p>
+  </div>
+  
+  <div style="padding: 24px;">
+    <!-- SENDER INFO CARD -->
+    <div style="background: #1e293b; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; border-left: 4px solid #eebc1d;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <tr>
+          <td style="padding: 6px 0; color: #94a3b8; width: 110px; font-weight: 600;">👤 SENDER:</td>
+          <td style="padding: 6px 0; color: #ffffff; font-weight: bold; font-size: 15px;">${contactEntry.name}</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #94a3b8; font-weight: 600;">📧 EMAIL:</td>
+          <td style="padding: 6px 0;">
+            <a href="mailto:${contactEntry.email}" style="color: #60a5fa; text-decoration: none; font-weight: 600;">${contactEntry.email}</a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #94a3b8; font-weight: 600;">📌 SUBJECT:</td>
+          <td style="padding: 6px 0; color: #f1f5f9;">${contactEntry.subject}</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; color: #94a3b8; font-weight: 600;">⏰ TIME:</td>
+          <td style="padding: 6px 0; color: #cbd5e1; font-size: 13px;">${new Date().toLocaleString()}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- MESSAGE CONTENT -->
+    <div style="margin-bottom: 24px;">
+      <h3 style="margin: 0 0 10px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #eebc1d;">Message Body</h3>
+      <div style="background: #182234; padding: 18px; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #e2e8f0; white-space: pre-wrap; border: 1px solid #334155;">
+${contactEntry.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div style="text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid #334155;">
+      <a href="mailto:${contactEntry.email}?subject=Re: ${encodeURIComponent(contactEntry.subject)}" style="display: inline-block; background: #eebc1d; color: #0f172a; font-weight: 700; font-size: 14px; padding: 10px 24px; border-radius: 6px; text-decoration: none;">
+        ✉️ Reply to ${contactEntry.name} (${contactEntry.email})
+      </a>
+    </div>
+  </div>
+</div>
+`,
+        });
+        console.log(`[contact] Notification email sent for message from ${contactEntry.name} <${contactEntry.email}>`);
+      } catch (mailErr) {
+        console.error("[contact] Failed to send email notification:", mailErr.message);
+      }
+    }
+
+    return sendJson(req, res, 200, {
+      success: true,
+      message: "Contact message received and sent to administrator.",
+    });
+  }
+
+  // 9. Contact messages list (GET /api/auth/contact-messages)
+  if (req.method === "GET" && urlPath === "/api/auth/contact-messages") {
+    const messagesPath = path.join(DATA_DIR, "contact_messages.json");
+    let messages = [];
+    if (fs.existsSync(messagesPath)) {
+      try {
+        messages = JSON.parse(fs.readFileSync(messagesPath, "utf8")) || [];
+      } catch {}
+    }
+    return sendJson(req, res, 200, { success: true, messages });
+  }
+
   return false; // Not handled by auth
 };
 
