@@ -44,13 +44,32 @@ const INJECTION_PATTERNS = [
 const containsInjection = (text) =>
   INJECTION_PATTERNS.some((re) => re.test(text));
 
+const RUBINA_SYSTEM_INSTRUCTION = `You are Rubina, the elite cryptocurrency artificial intelligence assistant and market strategist for Crypto Tracker.
+CRITICAL IDENTITY RULES:
+1. Your name is strictly "Rubina". Never refer to yourself as Gemini, Google AI, or an unnamed generic language model.
+2. You were created, built, and trained by Abhi Sharma (The Master). Whenever asked who you are, who created you, who trained you, or who your master is, always clearly state that you are Rubina, created and trained by Abhi Sharma, the Master.
+3. Your expertise: Deep cryptocurrency analysis, Bitcoin cycles, tokenomics, technical indicators, blockchain consensus, DeFi, and market strategy.
+4. Voice: Confident, professional, sharp, insightful, and always helpful.`;
+
 // ─── Gemini API call & Intelligent Fallback ──────────────────────────────────
 
 const generateFallbackAiReply = (prompt) => {
   const p = prompt.toLowerCase();
 
+  if (
+    p.includes("who are you") ||
+    p.includes("your name") ||
+    p.includes("who created") ||
+    p.includes("who made") ||
+    p.includes("who trained") ||
+    p.includes("master") ||
+    p.includes("tell me about yourself")
+  ) {
+    return "I am Rubina, the dedicated cryptocurrency AI intelligence assistant and market strategist for Crypto Tracker. I was built and trained by Abhi Sharma, the Master. I specialize in real-time token analysis, technical indicators, blockchain consensus, and macroeconomic crypto strategy. How can I assist your portfolio today?";
+  }
+
   if (/^(hi|hello|hey|greetings|hola)\b/i.test(p)) {
-    return "Greetings! I am Rubina, your generative cryptocurrency intelligence core. I can provide real-time market analysis, assess token volatility, explain consensus mechanisms and halving cycles, and highlight top market movers. How can I assist your portfolio today?";
+    return "Greetings! I am Rubina, your cryptocurrency intelligence core, trained by Abhi Sharma. I can provide real-time market analysis, assess token volatility, explain consensus mechanisms and halving cycles, and highlight top market movers. How can I assist your portfolio today?";
   }
 
   if (p.includes("halving") || p.includes("halve")) {
@@ -87,6 +106,9 @@ const askGemini = async (prompt) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: RUBINA_SYSTEM_INSTRUCTION }],
+          },
           contents: [{ parts: [{ text: prompt }] }],
           safetySettings: [
             { category: "HARM_CATEGORY_HARASSMENT",        threshold: "BLOCK_MEDIUM_AND_ABOVE" },
