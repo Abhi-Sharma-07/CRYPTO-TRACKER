@@ -74,7 +74,7 @@ const CryptoContext = ({ children }) => {
     setUser(null);
     setWatchlist([]);
     try {
-      signOut(auth);
+      if (auth) signOut(auth);
     } catch (e) {
       // ignore
     }
@@ -91,7 +91,7 @@ const CryptoContext = ({ children }) => {
     // Sync with JWT backend
     saveWatchlistApi(newCoins);
     // If user has firebase uid, also update firestore if accessible
-    if (user?.uid && !user.uid.startsWith("usr_")) {
+    if (db && user?.uid && !user.uid.startsWith("usr_")) {
       try {
         const coinRef = doc(db, "watchlist", user.uid);
         await setDoc(coinRef, { coins: newCoins }, { merge: true });
@@ -132,16 +132,24 @@ const CryptoContext = ({ children }) => {
         });
     } else {
       // Check Firebase auth fallback
-      const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-        if (isMounted) {
-          if (firebaseUser) {
-            setUser(firebaseUser);
-          } else {
-            setUser(null);
-          }
+      if (auth) {
+        try {
+          const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+            if (isMounted) {
+              if (firebaseUser) {
+                setUser(firebaseUser);
+              } else {
+                setUser(null);
+              }
+            }
+          });
+          return () => unsubscribe();
+        } catch {
+          if (isMounted) setUser(null);
         }
-      });
-      return () => unsubscribe();
+      } else {
+        if (isMounted) setUser(null);
+      }
     }
 
     return () => {
@@ -151,18 +159,22 @@ const CryptoContext = ({ children }) => {
 
   // Listen for Firestore watchlist changes if using Firebase
   useEffect(() => {
-    if (user && user.uid && !user.uid.startsWith("usr_")) {
-      const coinRef = doc(db, "watchlist", user.uid);
-      const unsubscribe = onSnapshot(
-        coinRef,
-        (coin) => {
-          if (coin.exists() && coin.data()?.coins) {
-            setWatchlist(coin.data().coins);
-          }
-        },
-        () => {}
-      );
-      return () => unsubscribe();
+    if (db && user && user.uid && !user.uid.startsWith("usr_")) {
+      try {
+        const coinRef = doc(db, "watchlist", user.uid);
+        const unsubscribe = onSnapshot(
+          coinRef,
+          (coin) => {
+            if (coin.exists() && coin.data()?.coins) {
+              setWatchlist(coin.data().coins);
+            }
+          },
+          () => {}
+        );
+        return () => unsubscribe();
+      } catch {
+        // ignore
+      }
     }
   }, [user]);
 
