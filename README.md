@@ -134,10 +134,4 @@ The application integrates with three external services:
 ## Security Highlights
 
 The AI proxy server is hardened with CORS origin whitelisting, IP-based rate limiting, request body size limits, prompt length caps, prompt-injection pattern detection, and standard security headers. Internal errors are never exposed to clients. All sensitive keys are stored in environment variables and excluded from version control via `.gitignore`. Firebase security rules should be configured to restrict database access to authenticated users only.
-
----
-
-## License
-
-This project is open-source and available under the [MIT License](LICENSE)
-"mailto:abhichiku44@gmail.com"
+

@@ -51,7 +51,7 @@ export const sendOwnerNotification = async ({ type, userEmail }) => {
   // 1. EmailJS Notification
   if (hasEmailJsConfig()) {
     const templateParams = {
-      to_email: OWNER_EMAIL || "abhisharmawork07@gmail.com",
+      to_email: OWNER_EMAIL || "",
       user_email: userEmail,
       from_email: userEmail,
       sender_email: userEmail,

@@ -44,3 +44,7 @@ secrets.json
 *.key
 *.pem
 server/data/users.json
+
+# Documentation Artifacts
+PROJECT_DOCUMENTATION.*
+*.pdf
