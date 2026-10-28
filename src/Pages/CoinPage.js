@@ -13,15 +13,21 @@ import CoinInfo from "../components/CoinInfo";
 import { SingleCoin } from "../config/api";
 import { numberWithCommas } from "../components/CoinsTable";
 import { CryptoState } from "../CryptoContext";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "../firebase";
-import { getFirebaseErrorMessage } from "../utils/firebaseError";
+
 
 const CoinPage = () => {
   const { id } = useParams();
   const [coin, setCoin] = useState();
 
-  const { currency, symbol, user, setAlert, watchlist } = CryptoState();
+  const {
+    currency,
+    symbol,
+    user,
+    setAlert,
+    watchlist,
+    updateWatchlist,
+    openAuthModal,
+  } = CryptoState();
 
   const fetchCoin = async () => {
     const cacheKey = `coin_${id}`;
@@ -45,14 +51,13 @@ const CoinPage = () => {
   const inWatchlist = watchlist.includes(coin?.id);
 
   const addToWatchlist = async () => {
-    const coinRef = doc(db, "watchlist", user.uid);
+    if (!user) {
+      openAuthModal(0, "Please log in to add coins to your watchlist");
+      return;
+    }
     try {
-      await setDoc(
-        coinRef,
-        { coins: watchlist ? [...watchlist, coin?.id] : [coin?.id] },
-        { merge: true }
-      );
-
+      const updated = watchlist ? [...watchlist, coin?.id] : [coin?.id];
+      await updateWatchlist(updated);
       setAlert({
         open: true,
         message: `${coin.name} Added to the Watchlist !`,
@@ -61,24 +66,17 @@ const CoinPage = () => {
     } catch (error) {
       setAlert({
         open: true,
-        message: getFirebaseErrorMessage(
-          error,
-          "Unable to update watchlist."
-        ),
+        message: "Unable to update watchlist.",
         type: "error",
       });
     }
   };
 
   const removeFromWatchlist = async () => {
-    const coinRef = doc(db, "watchlist", user.uid);
+    if (!user) return;
     try {
-      await setDoc(
-        coinRef,
-        { coins: watchlist.filter((watch) => watch !== coin?.id) },
-        { merge: true }
-      );
-
+      const updated = watchlist.filter((watch) => watch !== coin?.id);
+      await updateWatchlist(updated);
       setAlert({
         open: true,
         message: `${coin.name} Removed from the Watchlist !`,
@@ -87,10 +85,7 @@ const CoinPage = () => {
     } catch (error) {
       setAlert({
         open: true,
-        message: getFirebaseErrorMessage(
-          error,
-          "Unable to update watchlist."
-        ),
+        message: "Unable to update watchlist.",
         type: "error",
       });
     }

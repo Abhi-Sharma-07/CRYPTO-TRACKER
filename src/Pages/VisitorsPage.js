@@ -56,23 +56,45 @@ const VisitorsPage = () => {
 
   useEffect(() => {
     const fetchSignups = async () => {
+      const signupList = [];
+      try {
+        // Fetch from JWT backend
+        const res = await fetch("/api/auth/signups");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.signups)) {
+            data.signups.forEach((s) => {
+              signupList.push({
+                id: s.uid,
+                email: s.email,
+                signupDate: s.signupDate,
+              });
+            });
+          }
+        }
+      } catch (err) {
+        // ignore backend failure
+      }
+
       try {
         const q = query(
           collection(db, "signups"),
           orderBy("timestamp", "desc")
         );
         const querySnapshot = await getDocs(q);
-        const signupList = [];
         querySnapshot.forEach((doc) => {
-          signupList.push({
-            id: doc.id,
-            ...doc.data(),
-          });
+          if (!signupList.some((s) => s.email === doc.data().email)) {
+            signupList.push({
+              id: doc.id,
+              ...doc.data(),
+            });
+          }
         });
-        setSignups(signupList);
       } catch (error) {
-        console.error("Error fetching signups:", error);
+        console.error("Firestore signups fetch:", error);
       }
+
+      setSignups(signupList);
       setLoading(false);
     };
 

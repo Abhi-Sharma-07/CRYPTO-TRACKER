@@ -1,14 +1,15 @@
 import React, { Suspense, lazy } from "react";
 import { makeStyles, CircularProgress } from "@material-ui/core";
 import "./App.css";
-import { BrowserRouter, Redirect, Route } from "react-router-dom";
+import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Alert from "./components/Alert";
+import AuthModal from "./components/Authentication/AuthModal";
+import ProtectedRoute from "./components/Authentication/ProtectedRoute";
 import { ThemeProvider, useTheme } from "./ThemeContext";
 import { CryptoState } from "./CryptoContext";
 import { isAdminUser } from "./utils/adminAccess";
-import LandingAuthPage from "./components/Authentication/LandingAuthPage";
 
 const Homepage = lazy(() => import("./Pages/HomePage"));
 const CoinPage = lazy(() => import("./Pages/CoinPage"));
@@ -47,10 +48,6 @@ function AppContent() {
     );
   }
 
-  if (user === null) {
-    return <LandingAuthPage />;
-  }
-
   return (
     <div
       className={classes.App}
@@ -60,21 +57,67 @@ function AppContent() {
       }}
     >
       <Header />
-      <Suspense fallback={<div>Loading...</div>}>
-        <Route path="/" component={Homepage} exact />
-        <Route path="/coins/:id" component={CoinPage} exact />
-        <Route path="/signups" component={VisitorsPage} exact />
-        <Route
-          path="/traffic"
-          exact
-          render={() => (isAdmin ? <TrafficPage /> : <Redirect to="/" />)}
-        />
-        <Route path="/news" component={NewsPage} exact />
-        <Route path="/about" component={AboutPage} exact />
-        <Route path="/contact" component={ContactPage} exact />
-        <Route path="/ai" component={AiPage} exact />
+      <Suspense
+        fallback={
+          <div
+            style={{
+              minHeight: "50vh",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CircularProgress style={{ color: "gold" }} />
+          </div>
+        }
+      >
+        <Switch>
+          {/* Public Home & Info Pages */}
+          <Route path="/" component={Homepage} exact />
+          <Route path="/about" component={AboutPage} exact />
+          <Route path="/contact" component={ContactPage} exact />
+          <Route path="/login" exact><Redirect to="/" /></Route>
+          <Route path="/signup" exact><Redirect to="/" /></Route>
+          <Route path="/auth" exact><Redirect to="/" /></Route>
+
+          {/* Protected Modules (Require JWT / OTP login) */}
+          <ProtectedRoute
+            path="/coins/:id"
+            component={CoinPage}
+            moduleName="Coin Analytics & Charts"
+            exact
+          />
+          <ProtectedRoute
+            path="/ai"
+            component={AiPage}
+            moduleName="Rubina AI Assistant"
+            exact
+          />
+          <ProtectedRoute
+            path="/news"
+            component={NewsPage}
+            moduleName="Crypto News & Updates"
+            exact
+          />
+          <ProtectedRoute
+            path="/signups"
+            component={VisitorsPage}
+            moduleName="Platform Signups"
+            exact
+          />
+          <Route
+            path="/traffic"
+            exact
+            render={() => (isAdmin ? <TrafficPage /> : <Redirect to="/" />)}
+          />
+
+          {/* Catch-all */}
+          <Redirect to="/" />
+        </Switch>
       </Suspense>
       <Footer />
+      {/* Global Auth Modal for prompting JWT & OTP signin */}
+      <AuthModal triggerButton={false} />
     </div>
   );
 }

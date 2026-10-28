@@ -1,32 +1,14 @@
 import React, { useState } from "react";
 import {
-  Button,
-  TextField,
   Typography,
   Tab,
   Tabs,
-  CircularProgress,
-  InputAdornment,
-  IconButton,
-  Snackbar,
+  Button,
 } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
 import { makeStyles, ThemeProvider, createTheme } from "@material-ui/core/styles";
-import { Visibility, VisibilityOff } from "@material-ui/icons";
-import GoogleButton from "react-google-button";
-import { auth, db } from "../../firebase";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-} from "firebase/auth";
-import { setDoc, doc } from "firebase/firestore";
-import { CryptoState } from "../../CryptoContext";
-import { sendOwnerNotification } from "../../utils/emailjs";
-import { logAuthEvent } from "../../utils/authTraffic";
-import { getFirebaseErrorMessage } from "../../utils/firebaseError";
+import { useHistory } from "react-router-dom";
+import Login from "./Login";
+import Signup from "./Signup";
 
 const FEATURES = [
   {
@@ -46,8 +28,8 @@ const FEATURES = [
   },
   {
     icon: "🔒",
-    title: "Secure & Private",
-    desc: "Your account is protected with Firebase Authentication.",
+    title: "Secure JWT & OTP",
+    desc: "Protected accounts with Email Verification Codes and JWT tokens.",
   },
 ];
 
@@ -87,7 +69,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 
-  /* subtle radial glow behind the left content */
   leftGlow: {
     position: "absolute",
     width: "500px",
@@ -103,444 +84,259 @@ const useStyles = makeStyles((theme) => ({
   brand: {
     display: "flex",
     alignItems: "center",
-    gap: "12px",
+    gap: "14px",
     marginBottom: "48px",
-  },
-
-  "@keyframes rotateLogo": {
-    from: { transform: "rotate(0deg)" },
-    to: { transform: "rotate(360deg)" },
+    zIndex: 1,
   },
 
   brandLogo: {
-    height: "40px",
-    width: "40px",
+    width: "48px",
+    height: "48px",
     borderRadius: "50%",
+    border: "2px solid #EEBC1D",
     objectFit: "cover",
-    border: "1.5px solid rgba(238,188,29,0.4)",
-    animation: "$rotateLogo 20s linear infinite",
   },
 
   brandName: {
-    color: "#ffffff",
+    fontFamily: "serif",
+    fontSize: "22px",
     fontWeight: 700,
-    fontSize: "18px",
-    fontFamily: "serif",
-    letterSpacing: "0.2px",
-  },
-
-  heroHeading: {
-    fontSize: "clamp(34px, 3.2vw, 52px)",
-    fontWeight: 800,
-    lineHeight: 1.18,
-    fontFamily: "serif",
-    marginBottom: "18px",
     color: "#ffffff",
+    letterSpacing: "0.5px",
   },
 
-  goldWord: {
-    color: "#EEBC1D",
-  },
-
-  heroDesc: {
-    color: "#9ca3af",
-    fontSize: "16px",
-    lineHeight: 1.75,
-    maxWidth: "420px",
-    marginBottom: "44px",
+  headline: {
     fontFamily: "serif",
+    fontSize: "42px",
+    fontWeight: 800,
+    lineHeight: 1.2,
+    color: "#ffffff",
+    marginBottom: "16px",
+    zIndex: 1,
+    "& span": {
+      color: "#EEBC1D",
+    },
   },
 
-  featureList: {
+  subheadline: {
+    fontSize: "16px",
+    color: "#9ca3af",
+    lineHeight: 1.6,
+    marginBottom: "40px",
+    maxWidth: "460px",
+    zIndex: 1,
+  },
+
+  features: {
     display: "flex",
     flexDirection: "column",
-    gap: "22px",
-    marginBottom: "52px",
+    gap: "20px",
+    marginBottom: "44px",
+    zIndex: 1,
   },
 
-  featureRow: {
+  featureItem: {
     display: "flex",
-    gap: "14px",
     alignItems: "flex-start",
+    gap: "16px",
   },
 
   featureIconBox: {
-    width: "38px",
-    height: "38px",
+    width: "40px",
+    height: "40px",
     borderRadius: "10px",
-    background: "rgba(238,188,29,0.08)",
-    border: "1px solid rgba(238,188,29,0.15)",
+    background: "rgba(238,188,29,0.1)",
+    border: "1px solid rgba(238,188,29,0.2)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontSize: "18px",
     flexShrink: 0,
-    marginTop: "2px",
+  },
+
+  featureText: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "2px",
   },
 
   featureTitle: {
-    color: "#e5e7eb",
-    fontWeight: 700,
     fontSize: "14px",
-    fontFamily: "serif",
-    marginBottom: "3px",
+    fontWeight: 600,
+    color: "#f3f4f6",
   },
 
   featureDesc: {
-    color: "#9ca3af",
     fontSize: "13px",
-    fontFamily: "serif",
-    lineHeight: 1.6,
+    color: "#6b7280",
+    lineHeight: 1.4,
   },
 
   tickerRow: {
     display: "flex",
-    gap: "8px",
+    gap: "10px",
     flexWrap: "wrap",
+    zIndex: 1,
   },
 
-  tickerChip: {
-    padding: "5px 14px",
-    borderRadius: "100px",
+  tickerBadge: {
+    padding: "4px 12px",
+    borderRadius: "20px",
     background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.07)",
-    fontFamily: "serif",
+    border: "1px solid rgba(255,255,255,0.08)",
     fontSize: "12px",
-    fontWeight: 700,
+    fontWeight: 600,
     letterSpacing: "0.5px",
   },
 
   /* ─── RIGHT PANEL ─── */
   right: {
-    width: "440px",
+    flex: 1,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: "40px 32px",
+    padding: "40px 24px",
     background: "#0f1117",
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-      padding: "32px 20px",
-    },
   },
 
   card: {
     width: "100%",
-    maxWidth: "380px",
+    maxWidth: "440px",
+    background: "#161922",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: "16px",
+    padding: "36px 32px",
+    boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
   },
 
   cardHeader: {
     textAlign: "center",
-    marginBottom: "28px",
+    marginBottom: "24px",
   },
 
   cardLogo: {
-    height: "56px",
-    width: "56px",
+    width: "52px",
+    height: "52px",
     borderRadius: "50%",
+    border: "2px solid #EEBC1D",
     objectFit: "cover",
-    border: "2px solid rgba(238,188,29,0.4)",
     marginBottom: "14px",
-    animation: "$rotateLogo 20s linear infinite",
   },
 
   cardTitle: {
-    color: "#ffffff",
-    fontWeight: 700,
-    fontSize: "20px",
     fontFamily: "serif",
+    fontSize: "24px",
+    fontWeight: 700,
+    color: "#ffffff",
     marginBottom: "4px",
   },
 
   cardSubtitle: {
-    color: "#9ca3af",
-    fontSize: "13px",
-    fontFamily: "serif",
+    fontSize: "14px",
+    color: "#6b7280",
   },
 
   tabs: {
-    marginBottom: "22px",
-    background: "rgba(255,255,255,0.04)",
-    borderRadius: "10px",
-    padding: "3px",
+    marginBottom: "24px",
+    borderBottom: "1px solid rgba(255,255,255,0.08)",
     "& .MuiTabs-indicator": {
-      height: "100%",
-      borderRadius: "8px",
-      background: "#EEBC1D",
-      zIndex: 0,
-    },
-    "& .MuiTabs-flexContainer": {
-      position: "relative",
-      zIndex: 1,
+      backgroundColor: "#EEBC1D",
+      height: "2px",
     },
   },
 
   tab: {
-    fontFamily: "serif",
-    fontWeight: 600,
-    fontSize: "13px",
-    textTransform: "none",
-    minHeight: "34px",
     color: "#6b7280",
-    transition: "color 0.2s",
-    "&.Mui-selected": {
-      color: "#111",
-      fontWeight: 700,
-    },
-  },
-
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
-
-  input: {
-    "& .MuiOutlinedInput-root": {
-      color: "#e5e7eb",
-      background: "rgba(255,255,255,0.04)",
-      borderRadius: "10px",
-      fontFamily: "serif",
-      fontSize: "14px",
-      "& fieldset": {
-        borderColor: "rgba(255,255,255,0.09)",
-        transition: "border-color 0.2s",
-      },
-      "&:hover fieldset": {
-        borderColor: "rgba(255,255,255,0.18)",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#EEBC1D",
-        borderWidth: "1.5px",
-      },
-    },
-    "& .MuiInputLabel-outlined": {
-      color: "#6b7280",
-      fontFamily: "serif",
-      fontSize: "14px",
-      "&.Mui-focused": {
-        color: "#EEBC1D",
-      },
-    },
-  },
-
-  submitBtn: {
-    background: "#EEBC1D",
-    color: "#111",
-    fontWeight: 700,
     fontSize: "14px",
-    fontFamily: "serif",
-    borderRadius: "10px",
-    padding: "11px",
+    fontWeight: 600,
     textTransform: "none",
-    marginTop: "4px",
-    boxShadow: "none",
-    transition: "background 0.2s",
+    minWidth: 0,
+    "&.Mui-selected": {
+      color: "#EEBC1D",
+    },
+  },
+
+  homeLink: {
+    display: "block",
+    textAlign: "center",
+    marginTop: "20px",
+    color: "#EEBC1D",
+    fontSize: "14px",
+    cursor: "pointer",
+    textDecoration: "none",
     "&:hover": {
-      background: "#f5c842",
-      boxShadow: "none",
-    },
-    "&:disabled": {
-      background: "#312b0f",
-      color: "#6b5a10",
-    },
-  },
-
-  divider: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    margin: "16px 0",
-    "& span": {
-      color: "#374151",
-      fontSize: "12px",
-      fontFamily: "serif",
-    },
-  },
-
-  dividerLine: {
-    flex: 1,
-    height: "1px",
-    background: "rgba(255,255,255,0.06)",
-  },
-
-  googleWrapper: {
-    display: "flex",
-    justifyContent: "center",
-    "& button": {
-      borderRadius: "10px !important",
-      boxShadow: "none !important",
-      background: "rgba(255,255,255,0.05) !important",
-      border: "1px solid rgba(255,255,255,0.09) !important",
-      fontFamily: "serif !important",
-      fontSize: "13px !important",
-      height: "42px !important",
-      transition: "background 0.2s !important",
-      "&:hover": {
-        background: "rgba(255,255,255,0.08) !important",
-      },
+      textDecoration: "underline",
     },
   },
 
   footer: {
-    marginTop: "20px",
     textAlign: "center",
-    color: "#374151",
-    fontSize: "11px",
-    fontFamily: "serif",
-    lineHeight: 1.7,
+    marginTop: "20px",
+    fontSize: "12px",
+    color: "#4b5563",
+    lineHeight: 1.5,
   },
 }));
 
 const authTheme = createTheme({
-  palette: { type: "dark", primary: { main: "#EEBC1D" } },
-  typography: { fontFamily: "serif" },
+  palette: {
+    type: "dark",
+    primary: {
+      main: "#EEBC1D",
+    },
+  },
+  typography: {
+    fontFamily: "serif",
+  },
 });
 
-export default function LandingAuthPage() {
+export default function LandingAuthPage({ initialTab = 0 }) {
   const classes = useStyles();
-  const [tabValue, setTabValue] = useState(0);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  // Local inline alert state so errors always show even if App-level Alert doesn't render
-  const [localAlert, setLocalAlert] = useState({ open: false, message: "", type: "error" });
-
-  const { setAlert } = CryptoState();
-
-  const showError = (message, type = "error") => {
-    setAlert({ open: true, message, type });
-    setLocalAlert({ open: true, message, type });
-  };
-
-  const reset = () => { setEmail(""); setPassword(""); setConfirmPassword(""); };
-  const handleTabChange = (_, v) => { setTabValue(v); reset(); };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("[Auth] handleSubmit fired, tab:", tabValue, "email:", email);
-    if (!email || !password)
-      return showError("Please fill all fields");
-    if (tabValue === 1 && !confirmPassword)
-      return showError("Please confirm your password");
-    if (tabValue === 1 && password !== confirmPassword)
-      return showError("Passwords do not match");
-
-    setLoading(true);
-    try {
-      if (tabValue === 0) {
-        console.log("[Auth] Attempting login...");
-        const { user } = await signInWithEmailAndPassword(auth, email, password);
-        logAuthEvent({ eventType: "login", provider: "password", userEmail: user.email, uid: user.uid }).catch(console.error);
-        sendOwnerNotification({ type: "login", userEmail: user.email }).catch(console.error);
-        showError(`Welcome back, ${user.email}!`, "success");
-      } else {
-        console.log("[Auth] Attempting signup...");
-        const { user } = await createUserWithEmailAndPassword(auth, email, password);
-        try {
-          await setDoc(doc(db, "signups", user.uid), {
-            email: user.email, uid: user.uid,
-            signupDate: new Date().toISOString(), timestamp: new Date(),
-          });
-        } catch (dbErr) { console.error("DB save:", dbErr); }
-        logAuthEvent({ eventType: "signup", provider: "password", userEmail: user.email, uid: user.uid }).catch(console.error);
-        sendOwnerNotification({ type: "signup", userEmail: user.email }).catch(console.error);
-        showError(`Account created! Welcome ${user.email}`, "success");
-      }
-    } catch (error) {
-      console.error("[Auth] Error:", error.code, error.message);
-      if (error.code === "auth/email-already-in-use") {
-        setTabValue(0);
-      }
-      showError(getFirebaseErrorMessage(error, tabValue === 0 ? "Login failed." : "Signup failed."));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: "select_account" });
-    try {
-      const { user } = await signInWithPopup(auth, provider);
-      logAuthEvent({ eventType: "login", provider: "google", userEmail: user.email, uid: user.uid }).catch(console.error);
-      sendOwnerNotification({ type: "login (google)", userEmail: user.email }).catch(console.error);
-      setAlert({ open: true, message: `Welcome ${user.email} 🎉`, type: "success" });
-    } catch (error) {
-      console.error("Google login error:", error.code, error.message);
-      if (error.code === "auth/popup-blocked" || error.code === "auth/cancelled-popup-request") {
-        signInWithRedirect(auth, provider);
-      } else if (error.code !== "auth/popup-closed-by-user") {
-        setAlert({ open: true, message: getFirebaseErrorMessage(error, `Google sign-in error: ${error.code || error.message}`), type: "error" });
-      }
-    }
-  };
+  const history = useHistory();
+  const [tabValue, setTabValue] = useState(initialTab);
 
   return (
     <ThemeProvider theme={authTheme}>
       <div className={classes.page}>
-
         {/* ── LEFT PANEL ── */}
         <div className={classes.left}>
           <div className={classes.leftGlow} />
 
           {/* Brand */}
           <div className={classes.brand}>
-            <img src="/Cryptooo.png" alt="Logo" className={classes.brandLogo} />
-            <Typography className={classes.brandName}>Crypto Tracker</Typography>
+            <img src="/Cryptooo.png" alt="Crypto Tracker" className={classes.brandLogo} />
+            <span className={classes.brandName}>Crypto Tracker</span>
           </div>
 
           {/* Headline */}
-          <Typography className={classes.heroHeading}>
-            Your <span className={classes.goldWord}>crypto</span> universe, all in one place.
+          <Typography className={classes.headline}>
+            Smart crypto intelligence,<br />
+            <span>real-time</span> insights.
           </Typography>
 
-          <Typography className={classes.heroDesc}>
-            Real-time prices, AI insights, and a personal watchlist —
-            everything you need to stay ahead of the market.
+          <Typography className={classes.subheadline}>
+            Real-time prices, AI insights, and a personal watchlist — verified securely with Email OTP and JWT.
           </Typography>
-
-          {/* Hero Graphic */}
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "36px" }}>
-            <img
-              src="/Cryptooo.png"
-              alt="Crypto Orbit"
-              style={{
-                width: "260px",
-                height: "260px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                boxShadow: "0 0 40px rgba(238, 188, 29, 0.3)",
-                border: "2px solid rgba(238, 188, 29, 0.5)",
-              }}
-            />
-          </div>
 
           {/* Features */}
-          <div className={classes.featureList}>
-            {FEATURES.map((f) => (
-              <div className={classes.featureRow} key={f.title}>
+          <div className={classes.features}>
+            {FEATURES.map((f, i) => (
+              <div key={i} className={classes.featureItem}>
                 <div className={classes.featureIconBox}>{f.icon}</div>
-                <div>
-                  <Typography className={classes.featureTitle}>{f.title}</Typography>
-                  <Typography className={classes.featureDesc}>{f.desc}</Typography>
+                <div className={classes.featureText}>
+                  <span className={classes.featureTitle}>{f.title}</span>
+                  <span className={classes.featureDesc}>{f.desc}</span>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Coin tickers */}
+          {/* Tickers */}
           <div className={classes.tickerRow}>
             {TICKERS.map((t) => (
-              <div
-                key={t.symbol}
-                className={classes.tickerChip}
-                style={{ color: t.color, borderColor: `${t.color}22` }}
-              >
+              <span key={t.symbol} className={classes.tickerBadge} style={{ color: t.color }}>
                 {t.symbol}
-              </div>
+              </span>
             ))}
           </div>
         </div>
@@ -548,115 +344,48 @@ export default function LandingAuthPage() {
         {/* ── RIGHT PANEL ── */}
         <div className={classes.right}>
           <div className={classes.card}>
-
             {/* Header */}
             <div className={classes.cardHeader}>
               <img src="/Cryptooo.png" alt="Logo" className={classes.cardLogo} />
               <Typography className={classes.cardTitle}>
-                {tabValue === 0 ? "Welcome back" : "Get started"}
+                {tabValue === 0 ? "Welcome back" : "Create Account"}
               </Typography>
               <Typography className={classes.cardSubtitle}>
                 {tabValue === 0
-                  ? "Sign in to your account to continue"
-                  : "Create a free account in seconds"}
+                  ? "Sign in with your email and password"
+                  : "Verify your email with OTP to get full access"}
               </Typography>
             </div>
 
             {/* Tabs */}
-            <Tabs value={tabValue} onChange={handleTabChange} variant="fullWidth" className={classes.tabs}>
+            <Tabs
+              value={tabValue}
+              onChange={(e, val) => setTabValue(val)}
+              variant="fullWidth"
+              className={classes.tabs}
+            >
               <Tab label="Login" className={classes.tab} disableRipple />
               <Tab label="Sign Up" className={classes.tab} disableRipple />
             </Tabs>
 
-            {/* Form */}
-            <form className={classes.form} onSubmit={handleSubmit} noValidate>
-              <TextField
-                className={classes.input}
-                variant="outlined"
-                type="email"
-                label="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                fullWidth
-                disabled={loading}
-              />
+            {/* Forms */}
+            {tabValue === 0 && <Login />}
+            {tabValue === 1 && <Signup />}
 
-              <TextField
-                className={classes.input}
-                variant="outlined"
-                type={showPassword ? "text" : "password"}
-                label="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                fullWidth
-                disabled={loading}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small" style={{ color: "#6b7280" }}>
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
-              {tabValue === 1 && (
-                <TextField
-                  className={classes.input}
-                  variant="outlined"
-                  type="password"
-                  label="Confirm password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  fullWidth
-                  disabled={loading}
-                />
-              )}
-
-              <Button className={classes.submitBtn} type="submit" variant="contained" fullWidth disabled={loading} disableElevation>
-                {loading
-                  ? <CircularProgress size={20} style={{ color: "#6b5a10" }} />
-                  : tabValue === 0 ? "Sign In" : "Create Account"}
-              </Button>
-            </form>
-
-            {/* Divider */}
-            <div className={classes.divider}>
-              <div className={classes.dividerLine} />
-              <span>or</span>
-              <div className={classes.dividerLine} />
-            </div>
-
-            {/* Google */}
-            <div className={classes.googleWrapper}>
-              <GoogleButton onClick={handleGoogle} disabled={loading} label="Continue with Google" />
-            </div>
+            <Button
+              className={classes.homeLink}
+              onClick={() => history.push("/")}
+              fullWidth
+            >
+              ← Back to Public Homepage
+            </Button>
 
             <Typography className={classes.footer}>
               By continuing, you agree to our Terms of Service<br />and Privacy Policy.
             </Typography>
           </div>
         </div>
-
       </div>
-
-      {/* Inline alert — always renders regardless of App.js state */}
-      <Snackbar
-        open={localAlert.open}
-        autoHideDuration={5000}
-        onClose={() => setLocalAlert({ ...localAlert, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <MuiAlert
-          onClose={() => setLocalAlert({ ...localAlert, open: false })}
-          elevation={10}
-          variant="filled"
-          severity={localAlert.type}
-        >
-          {localAlert.message}
-        </MuiAlert>
-      </Snackbar>
     </ThemeProvider>
   );
 }

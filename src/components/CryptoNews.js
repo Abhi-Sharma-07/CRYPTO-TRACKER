@@ -31,14 +31,18 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     cursor: "pointer",
-    transition: "transform 0.2s",
+    borderRadius: 12,
+    transition: "transform 0.2s ease, box-shadow 0.2s ease",
     "&:hover": {
-      transform: "scale(1.05)",
+      transform: "translateY(-4px)",
     },
   },
   media: {
-    height: 110,
-    objectFit: "cover",
+    height: 64,
+    width: 64,
+    objectFit: "contain",
+    margin: "20px auto 10px auto",
+    display: "block",
   },
   content: {
     flexGrow: 1,
@@ -123,8 +127,10 @@ const CryptoNews = () => {
               <Card
                 className={classes.card}
                 style={{
-                  backgroundColor: isDarkMode ? "#262626" : "#faf8f3",
-                  color: isDarkMode ? "white" : "black",
+                  backgroundColor: isDarkMode ? "#181a20" : "#ffffff",
+                  border: isDarkMode ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid #e2e8f0",
+                  color: isDarkMode ? "#ffffff" : "#111827",
+                  boxShadow: isDarkMode ? "0 4px 20px rgba(0,0,0,0.5)" : "0 4px 16px rgba(0,0,0,0.06)",
                 }}
                 onClick={() => history.push(`/coins/${coin.id}`)}
               >
@@ -142,45 +148,45 @@ const CryptoNews = () => {
                     gutterBottom
                     variant="h6"
                     component="h2"
-                    style={{ color: isDarkMode ? "white" : "black", fontFamily: "serif" }}
+                    style={{
+                      color: isDarkMode ? "#ffffff" : "#111827",
+                      fontWeight: 700,
+                      textAlign: "center",
+                      marginBottom: 12,
+                    }}
                   >
                     {coin.name} ({coin.symbol?.toUpperCase()})
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color={isDarkMode ? "lightgray" : "textSecondary"}
-                    style={{ fontFamily: "serif" }}
-                  >
-                    Current Price: {symbol}{coin.current_price?.toLocaleString() || "N/A"}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color={isDarkMode ? "lightgray" : "textSecondary"}
-                    style={{ fontFamily: "serif" }}
-                  >
-                    Market Cap: {symbol}{coin.market_cap?.toLocaleString() || "N/A"}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color={isDarkMode ? "lightgray" : "textSecondary"}
-                    style={{ fontFamily: "serif" }}
-                  >
-                    24h Volume: {symbol}{coin.total_volume?.toLocaleString() || "N/A"}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color={isDarkMode ? "lightgray" : "textSecondary"}
-                    style={{ fontFamily: "serif" }}
-                  >
-                    24h Price Change: {symbol}{coin.price_change_24h?.toLocaleString() || "N/A"}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    className={classes.date}
-                    style={{ color: isDarkMode ? "gold" : "black", fontFamily: "serif" }}
-                  >
-                  24h Change: {formatPercent(coin.price_change_percentage_24h)}
-                </Typography>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 7, fontSize: "0.88rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ color: isDarkMode ? "#94a3b8" : "#475569", fontWeight: 600 }}>Current Price:</span>
+                      <strong style={{ color: isDarkMode ? "#f8fafc" : "#0f172a", fontWeight: 700 }}>
+                        {symbol}{coin.current_price?.toLocaleString() || "N/A"}
+                      </strong>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ color: isDarkMode ? "#94a3b8" : "#475569", fontWeight: 600 }}>Market Cap:</span>
+                      <strong style={{ color: isDarkMode ? "#f8fafc" : "#0f172a", fontWeight: 700 }}>
+                        {symbol}{coin.market_cap?.toLocaleString() || "N/A"}
+                      </strong>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span style={{ color: isDarkMode ? "#94a3b8" : "#475569", fontWeight: 600 }}>24h Volume:</span>
+                      <strong style={{ color: isDarkMode ? "#f8fafc" : "#0f172a", fontWeight: 700 }}>
+                        {symbol}{coin.total_volume?.toLocaleString() || "N/A"}
+                      </strong>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, paddingTop: 6, borderTop: isDarkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0" }}>
+                      <span style={{ color: isDarkMode ? "#94a3b8" : "#475569", fontWeight: 600 }}>24h Change:</span>
+                      <strong style={{ color: (coin.price_change_percentage_24h || 0) >= 0 ? "#10b981" : "#ef4444", fontWeight: 700 }}>
+                        {formatPercent(coin.price_change_percentage_24h)}
+                      </strong>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </Grid>

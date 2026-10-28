@@ -2,60 +2,82 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
 import { Avatar, Button, Typography, IconButton } from "@material-ui/core";
+import { Close } from "@material-ui/icons";
 import { CryptoState } from "../../CryptoContext";
 import { useTheme } from "../../ThemeContext";
-import { signOut } from "firebase/auth";
-import { auth, db } from "../../firebase";
 import { numberWithCommas } from "../CoinsTable";
 import { AiFillDelete } from "react-icons/ai";
-import { doc, setDoc } from "firebase/firestore";
-import { getFirebaseErrorMessage } from "../../utils/firebaseError";
 
 const useStyles = makeStyles({
   containerDark: {
     width: 380,
-    padding: 24,
+    maxWidth: "92vw",
+    padding: "24px 20px 24px 20px",
     height: "100%",
+    maxHeight: "100vh",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
+    overflowY: "auto",
     fontFamily: "serif",
     backgroundColor: "#111",
     color: "#fff",
+    "&::-webkit-scrollbar": {
+      width: "6px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "#333",
+      borderRadius: "4px",
+    },
   },
   containerLight: {
     width: 380,
-    padding: 24,
+    maxWidth: "92vw",
+    padding: "24px 20px 24px 20px",
     height: "100%",
+    maxHeight: "100vh",
+    boxSizing: "border-box",
     display: "flex",
     flexDirection: "column",
+    overflowY: "auto",
     fontFamily: "serif",
     backgroundColor: "#fff",
     color: "#000",
+    "&::-webkit-scrollbar": {
+      width: "6px",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "#ccc",
+      borderRadius: "4px",
+    },
   },
   profile: {
-    flex: 1,
+    width: "100%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: "20px",
-    height: "92%",
+    gap: "16px",
+    marginBottom: "16px",
   },
   logout: {
     height: 48,
+    minHeight: 48,
     width: "100%",
     backgroundColor: "#ff4d4d",
     color: "#fff",
-    marginTop: 20,
+    marginTop: 16,
+    marginBottom: 8,
     fontFamily: "serif",
     fontWeight: "bold",
     borderRadius: 8,
+    flexShrink: 0,
     "&:hover": {
       backgroundColor: "#cc0000",
     },
   },
   picture: {
-    width: 120,
-    height: 120,
+    width: 96,
+    height: 96,
     cursor: "pointer",
     backgroundColor: "#EEBC1D",
     objectFit: "contain",
@@ -152,11 +174,20 @@ export default function UserSidebar() {
   const [state, setState] = React.useState({
     right: false,
   });
-  const { user, setAlert, watchlist, coins, symbol } = CryptoState();
+  const {
+    user,
+    setAlert,
+    watchlist,
+    coins,
+    symbol,
+    logoutUser,
+    updateWatchlist,
+  } = CryptoState();
   const { isDarkMode } = useTheme();
 
   const toggleDrawer = (anchor, open) => (event) => {
     if (
+      event &&
       event.type === "keydown" &&
       (event.key === "Tab" || event.key === "Shift")
     ) {
@@ -167,25 +198,20 @@ export default function UserSidebar() {
   };
 
   const logOut = () => {
-    signOut(auth);
+    logoutUser();
     setAlert({
       open: true,
       type: "success",
-      message: "Logout Successfull !",
+      message: "Logged out successfully!",
     });
 
-    toggleDrawer();
+    toggleDrawer("right", false)();
   };
 
   const removeFromWatchlist = async (coin) => {
-    const coinRef = doc(db, "watchlist", user.uid);
     try {
-      await setDoc(
-        coinRef,
-        { coins: watchlist.filter((watch) => watch !== coin?.id) },
-        { merge: true }
-      );
-
+      const updated = watchlist.filter((watch) => watch !== coin?.id);
+      await updateWatchlist(updated);
       setAlert({
         open: true,
         message: `${coin.name} Removed from the Watchlist !`,
@@ -194,10 +220,7 @@ export default function UserSidebar() {
     } catch (error) {
       setAlert({
         open: true,
-        message: getFirebaseErrorMessage(
-          error,
-          "Unable to update watchlist."
-        ),
+        message: "Unable to update watchlist.",
         type: "error",
       });
     }
@@ -223,8 +246,49 @@ export default function UserSidebar() {
             anchor={anchor}
             open={state[anchor]}
             onClose={toggleDrawer(anchor, false)}
+            PaperProps={{
+              style: {
+                overflowY: "auto",
+                maxHeight: "100vh",
+              },
+            }}
           >
             <div className={isDarkMode ? classes.containerDark : classes.containerLight}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "100%",
+                  marginBottom: 12,
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  style={{
+                    fontWeight: 700,
+                    fontFamily: "serif",
+                    color: isDarkMode ? "#EEBC1D" : "#b45309",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  User Profile
+                </Typography>
+                <IconButton
+                  onClick={toggleDrawer(anchor, false)}
+                  size="small"
+                  style={{
+                    color: isDarkMode ? "#ffffff" : "#1e293b",
+                    backgroundColor: isDarkMode ? "rgba(255, 255, 255, 0.12)" : "rgba(0, 0, 0, 0.06)",
+                    padding: 6,
+                    borderRadius: "50%",
+                  }}
+                  aria-label="close drawer"
+                >
+                  <Close fontSize="small" />
+                </IconButton>
+              </div>
+
               <div className={classes.profile}>
                 <Avatar
                   className={classes.picture}

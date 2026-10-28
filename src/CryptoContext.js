@@ -1,9 +1,16 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { onAuthStateChanged, getRedirectResult } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth, db } from "./firebase";
-import { onSnapshot, doc } from "firebase/firestore";
-import { sendOwnerNotification } from "./utils/emailjs";
-import { logAuthEvent } from "./utils/authTraffic";
+import { onSnapshot, doc, setDoc } from "firebase/firestore";
+import {
+  getStoredToken,
+  getStoredUser,
+  setStoredAuth,
+  clearStoredAuth,
+  fetchCurrentUser,
+  saveWatchlistApi,
+} from "./services/authApi";
+import { FALLBACK_COINS } from "./config/fallbackCoins";
 
 const Crypto = createContext();
 
@@ -16,114 +23,218 @@ const CryptoContext = ({ children }) => {
     type: "success",
   });
   const [user, setUser] = useState(undefined);
-  const [coins, setCoins] = useState([]);
+  
+  // Instant 0ms load: read from localStorage cache first, or FALLBACK_COINS immediately
+  const [coins, setCoins] = useState(() => {
+    try {
+      const cached = localStorage.getItem("coinsCacheV1_USD");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed.coins) && parsed.coins.length > 0) {
+          return parsed.coins;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return FALLBACK_COINS;
+  });
   const [loading, setLoading] = useState(false);
   const [watchlist, setWatchlist] = useState([]);
+  
+  // Global Auth Modal control for easy prompt across modules
+  const [authModalState, setAuthModalState] = useState({
+    open: false,
+    tab: 0, // 0 = login, 1 = signup
+    message: "",
+  });
 
+  const openAuthModal = (tab = 0, message = "") => {
+    setAuthModalState({ open: true, tab, message });
+  };
+
+  const closeAuthModal = () => {
+    setAuthModalState((prev) => ({ ...prev, open: false }));
+  };
+
+  // Login handler
+  const loginUser = (userData, token) => {
+    setUser(userData);
+    if (Array.isArray(userData?.watchlist)) {
+      setWatchlist(userData.watchlist);
+    }
+    if (token) {
+      setStoredAuth(token, userData);
+    }
+  };
+
+  // Logout handler
+  const logoutUser = () => {
+    clearStoredAuth();
+    setUser(null);
+    setWatchlist([]);
+    try {
+      signOut(auth);
+    } catch (e) {
+      // ignore
+    }
+    setAlert({
+      open: true,
+      type: "success",
+      message: "Logged out successfully!",
+    });
+  };
+
+  // Update watchlist helper
+  const updateWatchlist = async (newCoins) => {
+    setWatchlist(newCoins);
+    // Sync with JWT backend
+    saveWatchlistApi(newCoins);
+    // If user has firebase uid, also update firestore if accessible
+    if (user?.uid && !user.uid.startsWith("usr_")) {
+      try {
+        const coinRef = doc(db, "watchlist", user.uid);
+        await setDoc(coinRef, { coins: newCoins }, { merge: true });
+      } catch (e) {
+        // backend is primary
+      }
+    }
+  };
+
+  // Check existing session on boot (JWT primary, Firebase fallback)
   useEffect(() => {
-    if (user) {
-      const coinRef = doc(db, "watchlist", user?.uid);
-      const unsubscribe = onSnapshot(coinRef, (coin) => {
-        if (coin.exists()) {
-          setWatchlist(coin.data().coins);
-        } else {
-          console.log("No Items in Watchlist");
+    let isMounted = true;
+    const token = getStoredToken();
+    const cachedUser = getStoredUser();
+
+    if (token) {
+      if (cachedUser && isMounted) {
+        setUser(cachedUser);
+        if (Array.isArray(cachedUser.watchlist)) {
+          setWatchlist(cachedUser.watchlist);
+        }
+      }
+      fetchCurrentUser(token)
+        .then((freshUser) => {
+          if (isMounted) {
+            if (freshUser) {
+              setUser(freshUser);
+              if (Array.isArray(freshUser.watchlist)) {
+                setWatchlist(freshUser.watchlist);
+              }
+            } else {
+              setUser(null);
+            }
+          }
+        })
+        .catch(() => {
+          if (isMounted && !cachedUser) setUser(null);
+        });
+    } else {
+      // Check Firebase auth fallback
+      const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        if (isMounted) {
+          if (firebaseUser) {
+            setUser(firebaseUser);
+          } else {
+            setUser(null);
+          }
         }
       });
+      return () => unsubscribe();
+    }
 
-      return () => {
-        unsubscribe();
-      };
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Listen for Firestore watchlist changes if using Firebase
+  useEffect(() => {
+    if (user && user.uid && !user.uid.startsWith("usr_")) {
+      const coinRef = doc(db, "watchlist", user.uid);
+      const unsubscribe = onSnapshot(
+        coinRef,
+        (coin) => {
+          if (coin.exists() && coin.data()?.coins) {
+            setWatchlist(coin.data().coins);
+          }
+        },
+        () => {}
+      );
+      return () => unsubscribe();
     }
   }, [user]);
-
-  useEffect(() => {
-    // Handle redirect result (fallback when popup is blocked by browser)
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          logAuthEvent({
-            eventType: "login",
-            provider: "google",
-            userEmail: result.user.email,
-            uid: result.user.uid,
-          }).catch((error) => {
-            console.error("Google login traffic logging failed:", error);
-          });
-          sendOwnerNotification({
-            type: "login (google)",
-            userEmail: result.user.email,
-          }).catch((error) => {
-            console.error("Google login notification failed:", error);
-          });
-
-          setAlert({
-            open: true,
-            message: `Welcome ${result.user.email} 🎉`,
-            type: "success",
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("Google redirect error:", error.code);
-      });
-
-    // Listen for auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (loggedInUser) => {
-      if (loggedInUser) setUser(loggedInUser);
-      else setUser(null);
-    });
-    return () => unsubscribe();
-  }, []);
 
   const fetchCoins = useCallback(async () => {
     const cacheKey = `coinsCacheV1_${currency}`;
     const cached = localStorage.getItem(cacheKey);
-    let isCached = false;
 
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed.coins)) {
+        if (Array.isArray(parsed.coins) && parsed.coins.length > 0) {
           setCoins(parsed.coins);
-          setLoading(false);
-          isCached = true;
+          // If cache is less than 60 seconds old, avoid unnecessary network calls
+          if (Date.now() - (parsed.ts || 0) < 60000) {
+            setLoading(false);
+            return;
+          }
         }
       } catch {
         // ignore cache errors
       }
     }
 
-    if (!isCached) setLoading(true);
-
     try {
-      const response = await fetch(
-        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency.toLowerCase()}&order=market_cap_desc&per_page=100&page=1&sparkline=false`
-      );
-      const data = await response.json();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-      if (!Array.isArray(data)) {
-        throw new Error(
-          data?.error || "CoinGecko returned an invalid market response."
+      // 1. Try our high-speed local proxy first (0-5ms response, handles caching & 429s)
+      let data = null;
+      try {
+        const proxyRes = await fetch(
+          `http://localhost:5000/api/coins?currency=${currency.toLowerCase()}`,
+          { signal: controller.signal }
         );
+        if (proxyRes.ok) {
+          data = await proxyRes.json();
+        }
+      } catch {
+        // Local proxy not reachable, try direct CoinGecko
       }
 
-      setCoins(data);
-      localStorage.setItem(
-        cacheKey,
-        JSON.stringify({ coins: data, ts: Date.now() })
-      );
-    } catch (error) {
-      console.error("Error fetching coins:", error);
-    }
+      // 2. Direct CoinGecko fallback if proxy didn't return data
+      if (!Array.isArray(data) || data.length === 0) {
+        const directRes = await fetch(
+          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currency.toLowerCase()}&order=market_cap_desc&per_page=100&page=1&sparkline=false`,
+          { signal: controller.signal }
+        );
+        if (directRes.ok) {
+          data = await directRes.json();
+        }
+      }
 
-    setLoading(false);
+      clearTimeout(timeoutId);
+
+      if (Array.isArray(data) && data.length > 0) {
+        setCoins(data);
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({ coins: data, ts: Date.now() })
+        );
+      }
+    } catch (error) {
+      console.warn("Using instant cached/fallback crypto dataset.");
+    } finally {
+      setLoading(false);
+    }
   }, [currency]);
 
   useEffect(() => {
-    if (currency === "INR") setSymbol("\u20B9");
+    if (currency === "INR") setSymbol("₹");
     else if (currency === "USD") setSymbol("$");
-    else if (currency === "EUR") setSymbol("\u20AC");
+    else if (currency === "EUR") setSymbol("€");
 
     fetchCoins();
   }, [currency, fetchCoins]);
@@ -137,10 +248,18 @@ const CryptoContext = ({ children }) => {
         alert,
         setAlert,
         user,
+        setUser,
         coins,
         loading,
         watchlist,
+        setWatchlist,
+        updateWatchlist,
+        loginUser,
+        logoutUser,
         fetchCoins,
+        authModalState,
+        openAuthModal,
+        closeAuthModal,
       }}
     >
       {children}

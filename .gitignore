@@ -43,3 +43,4 @@ coverage/
 secrets.json
 *.key
 *.pem
+server/data/users.json

@@ -90,10 +90,11 @@ const CoinInfo = ({ coin }) => {
               data={{
                 labels: historicData.map((coin) => {
                   let date = new Date(coin[0]);
-                  let time =
-                    date.getHours() > 12
-                      ? `${date.getHours() - 12}:${date.getMinutes()} PM`
-                      : `${date.getHours()}:${date.getMinutes()} AM`;
+                  const hours = date.getHours();
+                  const mins = date.getMinutes().toString().padStart(2, "0");
+                  const ampm = hours >= 12 ? "PM" : "AM";
+                  const displayHours = hours % 12 || 12;
+                  const time = `${displayHours}:${mins} ${ampm}`;
                   return days === 1 ? time : date.toLocaleDateString();
                 }),
 
@@ -133,8 +134,23 @@ const CoinInfo = ({ coin }) => {
                   tooltip: {
                     mode: "index",
                     intersect: false,
-                    titleColor: isDarkMode ? "#fff" : "#000",
-                    bodyColor: isDarkMode ? "#fff" : "#000",
+                    backgroundColor: isDarkMode ? "rgba(24, 26, 32, 0.95)" : "rgba(255, 255, 255, 0.98)",
+                    titleColor: isDarkMode ? "#EEBC1D" : "#0f172a",
+                    bodyColor: isDarkMode ? "#ffffff" : "#1e293b",
+                    borderColor: isDarkMode ? "rgba(238, 188, 29, 0.4)" : "#cbd5e1",
+                    borderWidth: 1,
+                    padding: 10,
+                    cornerRadius: 8,
+                    titleFont: {
+                      family: "serif",
+                      weight: "bold",
+                      size: 13,
+                    },
+                    bodyFont: {
+                      family: "serif",
+                      weight: "600",
+                      size: 13,
+                    },
                   },
                 },
                 scales: {

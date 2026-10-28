@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { CryptoState } from "../CryptoContext";
-import { Container, Typography, TextField, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, LinearProgress, createTheme, ThemeProvider, Button, Box } from "@material-ui/core";
+import { Container, Typography, TextField, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, LinearProgress, createTheme, ThemeProvider, Button, Box, InputAdornment } from "@material-ui/core";
+import { Search } from "@material-ui/icons";
 import { useHistory } from "react-router-dom";
 import { useTheme } from "../ThemeContext";
 
@@ -14,24 +15,59 @@ const CoinsTable = () => {
   const [page, setPage] = useState(1);
   const { isDarkMode } = useTheme();
 
-  // Get the context data and fetch function
-  const { symbol, coins, loading, fetchCoins } = CryptoState();
+  const { symbol, coins, loading, user, openAuthModal } = CryptoState();
 
-  // Add useEffect to fetch coins when component mounts
-  useEffect(() => {
-    fetchCoins();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const handleCoinClick = (coinId) => {
+    if (!user) {
+      openAuthModal(
+        0,
+        "Please log in to view detailed coin analytics & charts"
+      );
+      return;
+    }
+    history.push(`/coins/${coinId}`);
+  };
 
   const useStyles = makeStyles({
+    searchRoot: {
+      marginBottom: 20,
+      maxWidth: 680,
+      width: "100%",
+      margin: "0 auto 20px auto",
+      "& .MuiOutlinedInput-root": {
+        backgroundColor: isDarkMode ? "#181a20" : "#ffffff",
+        borderRadius: 10,
+        color: isDarkMode ? "#ffffff" : "#0f172a",
+        "& fieldset": {
+          borderColor: isDarkMode ? "rgba(255, 255, 255, 0.2)" : "#cbd5e1",
+          borderWidth: 1.5,
+        },
+        "&:hover fieldset": {
+          borderColor: "#EEBC1D",
+        },
+        "&.Mui-focused fieldset": {
+          borderColor: "#EEBC1D",
+        },
+      },
+      "& .MuiOutlinedInput-input": {
+        padding: "14px 14px 14px 6px",
+        fontSize: "1rem",
+        fontFamily: "serif",
+        color: isDarkMode ? "#ffffff" : "#0f172a",
+        "&::placeholder": {
+          color: isDarkMode ? "#94a3b8" : "#64748b",
+          opacity: 1,
+        },
+      },
+    },
     row: {
-      backgroundColor: isDarkMode ? "#16171a" : "#f5f5f5",
+      backgroundColor: isDarkMode ? "#16171a" : "#ffffff",
       cursor: "pointer",
       "&:hover": {
-        backgroundColor: isDarkMode ? "#131111" : "#e0e0e0",
+        backgroundColor: isDarkMode ? "#1f2128" : "#f1f5f9",
       },
       fontFamily: "serif",
-      color: isDarkMode ? "white" : "black",
+      color: isDarkMode ? "#ffffff" : "#111827",
     },
     pagination: {
       "& .MuiPaginationItem-root": {
@@ -43,12 +79,12 @@ const CoinsTable = () => {
   const classes = useStyles();
   const history = useHistory();
 
-  const darkTheme = createTheme({
+  const tableTheme = createTheme({
     palette: {
+      type: isDarkMode ? "dark" : "light",
       primary: {
-        main: "#fff",
+        main: "#EEBC1D",
       },
-      type: "dark",
     },
     typography: {
       fontFamily: "serif",
@@ -56,10 +92,12 @@ const CoinsTable = () => {
   });
 
   const handleSearch = () => {
-    return coins.filter(
+    const q = (search || "").trim().toLowerCase();
+    if (!q) return coins || [];
+    return (coins || []).filter(
       (coin) =>
-        coin.name.toLowerCase().includes(search.toLowerCase()) ||
-        coin.symbol.toLowerCase().includes(search.toLowerCase())
+        (coin?.name && coin.name.toLowerCase().includes(q)) ||
+        (coin?.symbol && coin.symbol.toLowerCase().includes(q))
     );
   };
 
@@ -72,33 +110,41 @@ const CoinsTable = () => {
     }
   }, [page, totalPages]);
 
-  // Add this return statement to render the component
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={tableTheme}>
       <Container
+        maxWidth="md"
         style={{
           textAlign: "center",
           backgroundColor: isDarkMode ? "#14161a" : "#faf8f3",
           color: isDarkMode ? "white" : "black",
+          maxWidth: 940,
+          paddingLeft: 16,
+          paddingRight: 16,
         }}
       >
         <Typography
           variant="h4"
           style={{
-            margin: 18,
+            margin: "20px 0 16px 0",
             fontFamily: "serif",
             color: isDarkMode ? "white" : "black",
+            fontSize: "1.85rem",
           }}
         >
           Cryptocurrency Prices by Market Cap
         </Typography>
 
         <TextField
-          label="Search For a Crypto Currency.."
+          className={classes.searchRoot}
+          placeholder="Search For a Crypto Currency.. (e.g. Bitcoin, ETH, Solana)"
           variant="outlined"
-          style={{ marginBottom: 20, width: "100%" }}
           InputProps={{
-            style: { color: isDarkMode ? "white" : "black" },
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search style={{ color: isDarkMode ? "#EEBC1D" : "#b45309", marginLeft: 6 }} />
+              </InputAdornment>
+            ),
           }}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -106,7 +152,12 @@ const CoinsTable = () => {
         <TableContainer
           component={Paper}
           style={{
-            backgroundColor: isDarkMode ? "#1e1e1e" : "#faf8f3",
+            backgroundColor: isDarkMode ? "#1e1e1e" : "#ffffff",
+            borderRadius: 10,
+            overflow: "hidden",
+            boxShadow: isDarkMode
+              ? "0 4px 20px rgba(0,0,0,0.4)"
+              : "0 4px 16px rgba(0,0,0,0.06)",
           }}
         >
           {loading && <LinearProgress style={{ backgroundColor: "gold" }} />}
@@ -119,7 +170,9 @@ const CoinsTable = () => {
                     style={{
                       color: "black",
                       fontWeight: "700",
-                        fontFamily: "serif",
+                      fontFamily: "serif",
+                      padding: "12px 18px",
+                      fontSize: "0.95rem",
                     }}
                     key={head}
                     align={head === "Coin" ? "left" : "right"}
@@ -138,7 +191,7 @@ const CoinsTable = () => {
                     
                     return (
                       <TableRow
-                        onClick={() => history.push(`/coins/${coin.id}`)}
+                        onClick={() => handleCoinClick(coin.id)}
                         className={classes.row}
                         key={coin.name}
                       >
@@ -147,33 +200,37 @@ const CoinsTable = () => {
                           scope="row"
                           style={{
                             display: "flex",
-                            gap: 15,
+                            alignItems: "center",
+                            gap: 12,
+                            padding: "10px 18px",
                           }}
                         >
                           <img
                             src={coin?.image}
                             alt={coin.name}
-                            height="50"
-                            style={{ marginBottom: 10 }}
+                            height="38"
+                            width="38"
+                            style={{ objectFit: "contain" }}
                           />
                           <div
-                            style={{ display: "flex", flexDirection: "column" }}
+                            style={{ display: "flex", flexDirection: "column", textAlign: "left" }}
                           >
                             <span
                               style={{
                                 textTransform: "uppercase",
-                                fontSize: 22,
+                                fontSize: 18,
+                                fontWeight: 700,
                                 color: isDarkMode ? "white" : "black",
                               }}
                             >
                               {coin.symbol}
                             </span>
-                            <span style={{ color: isDarkMode ? "darkgrey" : "grey" }}>
+                            <span style={{ fontSize: 13, color: isDarkMode ? "darkgrey" : "grey" }}>
                               {coin.name}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell align="right" style={{ color: isDarkMode ? "white" : "black" }}>
+                        <TableCell align="right" style={{ color: isDarkMode ? "white" : "black", padding: "10px 18px", fontWeight: 500 }}>
                           {symbol}{" "}
                           {numberWithCommas(
                             (coin.current_price || 0).toFixed(2)
@@ -183,13 +240,14 @@ const CoinsTable = () => {
                           align="right"
                           style={{
                             color: profit > 0 ? "rgb(14, 203, 129)" : "red",
-                            fontWeight: 500,
+                            fontWeight: 600,
+                            padding: "10px 18px",
                           }}
                         >
                           {profit && "+"}
                           {coin.price_change_percentage_24h ? coin.price_change_percentage_24h.toFixed(2) : "0.00"}%
                         </TableCell>
-                        <TableCell align="right" style={{ color: isDarkMode ? "white" : "black" }}>
+                        <TableCell align="right" style={{ color: isDarkMode ? "white" : "black", padding: "10px 18px" }}>
                           {symbol}{" "}
                           {numberWithCommas(
                             (coin.market_cap || 0).toString().slice(0, -6)

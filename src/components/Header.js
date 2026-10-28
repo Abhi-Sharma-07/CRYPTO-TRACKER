@@ -58,11 +58,19 @@ const lightTheme = createTheme({
 
 function Header() {
   const classes = useStyles();
-  const { currency, setCurrency, user } = CryptoState();
+  const { currency, setCurrency, user, openAuthModal } = CryptoState();
   const isAdmin = isAdminUser(user);
   const { isDarkMode, toggleTheme } = useTheme();
   const history = useHistory();
   const theme = isDarkMode ? darkTheme : lightTheme;
+
+  const handleProtectedNav = (path, name) => {
+    if (!user) {
+      openAuthModal(0, `Please log in to access ${name}`);
+      return;
+    }
+    history.push(path);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -137,7 +145,7 @@ function Header() {
             </Typography>
 
             <Typography
-              onClick={() => history.push(`/news`)}
+              onClick={() => handleProtectedNav("/news", "Crypto News")}
               variant="h6"
               style={{
                 cursor: "pointer",
@@ -176,7 +184,7 @@ function Header() {
             </Typography>
 
             <Typography
-              onClick={() => history.push(`/ai`)}
+              onClick={() => handleProtectedNav("/ai", "Rubina AI Assistant")}
               variant="h6"
               style={{
                 cursor: "pointer",
