@@ -1,10 +1,10 @@
 /**
  * api/auth.js — Vercel Serverless Function for Authentication
- * Pure ESM + Node.js crypto (zero-dependency for maximum reliability on Vercel)
+ * CommonJS + Node.js crypto (nodemailer is CJS-only; using require for Vercel compatibility)
  */
 
-import crypto from "crypto";
-import nodemailer from "nodemailer";
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 
 const JWT_SECRET = process.env.JWT_SECRET || "crypto_tracker_jwt_secret_key_2026_secured";
 
@@ -119,7 +119,7 @@ const getRequestBody = async (req) => {
   });
 };
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   const origin = req.headers.origin || "*";
   const corsHeaders = getCorsHeaders(origin);
 

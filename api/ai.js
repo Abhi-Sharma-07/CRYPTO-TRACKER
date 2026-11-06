@@ -170,7 +170,7 @@ const getCorsHeaders = (origin) => {
 
 // ─── Main handler (Vercel serverless) ────────────────────────────────────────
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   const corsHeaders = getCorsHeaders(req.headers.origin);
 
   // CORS preflight
