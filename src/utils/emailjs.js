@@ -220,6 +220,6 @@ ${message}
     console.warn("Backend mail dispatch error:", err.message);
   }
 
-  return { success: true };
+  return { success: sent };
 };
 
