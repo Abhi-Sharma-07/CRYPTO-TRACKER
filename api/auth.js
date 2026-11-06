@@ -26,7 +26,9 @@ const getMailerTransporter = () => {
 
   if (user && pass) {
     return nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: { user, pass },
     });
   }
@@ -174,31 +176,38 @@ export default async function handler(req, res) {
       });
 
       const transporter = getMailerTransporter();
-      if (transporter) {
-        try {
-          const fromAddr =
-            process.env.EMAIL_FROM ||
-            process.env.GMAIL_USER ||
-            "no-reply@cryptotracker.com";
-          await transporter.sendMail({
-            from: fromAddr.includes("<") ? fromAddr : `"Crypto Tracker" <${fromAddr}>`,
-            to: email,
-            subject: `${otp} is your Crypto Tracker verification code`,
-            text: `Your Crypto Tracker verification code is: ${otp}. It will expire in 10 minutes.`,
-            html: `
-              <div style="font-family: Arial, sans-serif; background: #0b0f19; padding: 32px; color: #f8fafc; border-radius: 8px; max-width: 500px; margin: 0 auto;">
-                <h2 style="color: #eebc1d; margin-top: 0;">Crypto Tracker Verification</h2>
-                <p style="font-size: 15px; color: #cbd5e1;">Use the verification code below to complete your registration:</p>
-                <div style="background: #1e293b; color: #eebc1d; font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 18px; text-align: center; border-radius: 8px; margin: 24px 0; border: 1px solid rgba(238, 188, 29, 0.3);">
-                  ${otp}
-                </div>
-                <p style="color: #94a3b8; font-size: 13px; line-height: 1.5;">This code expires in 10 minutes. If you did not make this request, you can safely disregard this message.</p>
+      if (!transporter) {
+        return jsonResponse(500, {
+          error: "Email delivery service is not configured. Please add GMAIL_USER and GMAIL_APP_PASSWORD to Vercel Environment Variables.",
+        });
+      }
+
+      try {
+        const fromAddr =
+          process.env.EMAIL_FROM ||
+          process.env.GMAIL_USER ||
+          "no-reply@cryptotracker.com";
+        await transporter.sendMail({
+          from: fromAddr.includes("<") ? fromAddr : `"Crypto Tracker" <${fromAddr}>`,
+          to: email,
+          subject: `${otp} is your Crypto Tracker verification code`,
+          text: `Your Crypto Tracker verification code is: ${otp}. It will expire in 10 minutes.`,
+          html: `
+            <div style="font-family: Arial, sans-serif; background: #0b0f19; padding: 32px; color: #f8fafc; border-radius: 8px; max-width: 500px; margin: 0 auto;">
+              <h2 style="color: #eebc1d; margin-top: 0;">Crypto Tracker Verification</h2>
+              <p style="font-size: 15px; color: #cbd5e1;">Use the verification code below to complete your registration:</p>
+              <div style="background: #1e293b; color: #eebc1d; font-size: 32px; font-weight: bold; letter-spacing: 8px; padding: 18px; text-align: center; border-radius: 8px; margin: 24px 0; border: 1px solid rgba(238, 188, 29, 0.3);">
+                ${otp}
               </div>
-            `,
-          });
-        } catch (mailErr) {
-          console.error("[api/auth] SMTP delivery error:", mailErr.message);
-        }
+              <p style="color: #94a3b8; font-size: 13px; line-height: 1.5;">This code expires in 10 minutes. If you did not make this request, you can safely disregard this message.</p>
+            </div>
+          `,
+        });
+      } catch (mailErr) {
+        console.error("[api/auth] SMTP delivery error:", mailErr.message);
+        return jsonResponse(500, {
+          error: `Failed to dispatch email: ${mailErr.message}`,
+        });
       }
 
       return jsonResponse(200, {
