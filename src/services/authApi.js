@@ -111,7 +111,7 @@ export const getStoredUser = () => {
 };
 
 export const sendOtp = async (email) => {
-  const response = await fetch(`${getApiBase()}/api/auth/send-otp`, {
+  const response = await fetch(`${getApiBase()}/api/auth?action=send-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
@@ -120,7 +120,7 @@ export const sendOtp = async (email) => {
 };
 
 export const verifyOtp = async (email, otp) => {
-  const response = await fetch(`${getApiBase()}/api/auth/verify-otp`, {
+  const response = await fetch(`${getApiBase()}/api/auth?action=verify-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, otp }),
@@ -129,7 +129,7 @@ export const verifyOtp = async (email, otp) => {
 };
 
 export const signupUser = async ({ email, password, otp }) => {
-  const response = await fetch(`${getApiBase()}/api/auth/signup`, {
+  const response = await fetch(`${getApiBase()}/api/auth?action=signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password, otp }),
@@ -142,7 +142,7 @@ export const signupUser = async ({ email, password, otp }) => {
 };
 
 export const loginUserApi = async ({ email, password }) => {
-  const response = await fetch(`${getApiBase()}/api/auth/login`, {
+  const response = await fetch(`${getApiBase()}/api/auth?action=login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -159,7 +159,7 @@ export const fetchCurrentUser = async (token) => {
   if (!authToken) return null;
 
   try {
-    const response = await fetch(`${getApiBase()}/api/auth/me`, {
+    const response = await fetch(`${getApiBase()}/api/auth?action=me`, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
     if (!response.ok) {
@@ -180,7 +180,7 @@ export const saveWatchlistApi = async (coins) => {
   const token = getStoredToken();
   if (!token) return;
   try {
-    await fetch(`${getApiBase()}/api/auth/watchlist`, {
+    await fetch(`${getApiBase()}/api/auth?action=watchlist`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

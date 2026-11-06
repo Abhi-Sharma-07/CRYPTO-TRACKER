@@ -207,7 +207,7 @@ ${message}
         window.location.hostname === "127.0.0.1");
     const apiBase = isLocalHost ? "http://localhost:5000" : "";
 
-    const res = await fetch(`${apiBase}/api/auth/contact`, {
+    const res = await fetch(`${apiBase}/api/auth?action=contact`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, subject, message }),

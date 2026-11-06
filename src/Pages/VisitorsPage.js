@@ -59,7 +59,7 @@ const VisitorsPage = () => {
       const signupList = [];
       try {
         // Fetch from JWT backend
-        const res = await fetch("/api/auth/signups");
+        const res = await fetch("/api/auth?action=signups");
         if (res.ok) {
           const text = await res.text();
           if (text && text.trim()) {
